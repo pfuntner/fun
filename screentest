@@ -7,11 +7,11 @@ import logging
 import argparse
 import subprocess
 
-def run(cmd, ret_stdout=False):
+def run(cmd, ret_stdout=False, trap_stderr=True):
   if isinstance(cmd, basestring):
     cmd = cmd.split()
   log.debug('Executing {cmd} with ret_stdout={ret_stdout}'.format(**locals()))
-  p = subprocess.Popen(cmd, stdout=subprocess.PIPE if ret_stdout else None, stderr=subprocess.PIPE)
+  p = subprocess.Popen(cmd, stdout=subprocess.PIPE if ret_stdout else None, stderr=subprocess.PIPE if trap_stderr else None)
   (stdout, stderr) = p.communicate()
   rc = p.wait()
   return stdout if ret_stdout else None
@@ -56,8 +56,8 @@ logging.basicConfig(filename='screentest.log', format='%(asctime)s %(levelname)s
 log = logging.getLogger()
 log.setLevel(logging.DEBUG if args.verbose else logging.INFO)
 
-cols = to_int(run('tput cols', ret_stdout=True))
-rows = to_int(run('tput lines', ret_stdout=True))
+cols = to_int(run('tput cols', ret_stdout=True, trap_stderr=False))
+rows = to_int(run('tput lines', ret_stdout=True, trap_stderr=False))
 clear = run('tput clear', ret_stdout=True)
 
 see('cols')
@@ -69,25 +69,27 @@ write(clear)
 goto(0, 1)
 write(horizontal * (cols-2))
 
-for row in range(1,rows-1):
+for row in range(1,rows-2):
   goto(row, 0)
   write(vertical)
   goto(row, cols-1)
   write(vertical)
 
-goto(rows-1, 1)
+goto(rows-2, 1)
 write(horizontal * (cols-2))
 
 goto(0, 0)
 write('0,0')
 
-writeto(rows, cols, '{rows},{cols}'.format(**locals()))
+writeto(rows-2, cols, '{rows},{cols}'.format(**locals()))
 
 row = 0
 col = 0
 step = (cols*1.0)/rows
-while row < rows:
+while row < rows-1:
   goto(row, col)
   # time.sleep(.1)
   row += 1
   col += step
+
+goto(rows-1, 0)
