@@ -40,6 +40,13 @@ def see(expr):
   log.info('{expr}={value!r}'.format(**locals()))
 
 to_int_regexp = re.compile('(\d+)')
+
+horizontal = unichr(9473)
+vertical = unichr(9475)
+topLeftCorner = unichr(9487)
+topRightCorner = unichr(9491)
+bottomLeftCorner = unichr(9495)
+bottomRightCorner = unichr(9499)
   
 parser = argparse.ArgumentParser(description='A sample use of ArgumentParser')
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',  help='Enable verbose debugging')
@@ -59,6 +66,18 @@ see('clear')
 
 write(clear)
 
+goto(0, 1)
+write(horizontal * (cols-2))
+
+for row in range(1,rows-1):
+  goto(row, 0)
+  write(vertical)
+  goto(row, cols-1)
+  write(vertical)
+
+goto(rows-1, 1)
+write(horizontal * (cols-2))
+
 goto(0, 0)
 write('0,0')
 
@@ -69,6 +88,6 @@ col = 0
 step = (cols*1.0)/rows
 while row < rows:
   goto(row, col)
-  time.sleep(.1)
+  # time.sleep(.1)
   row += 1
   col += step
