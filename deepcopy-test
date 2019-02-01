@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+
+import copy
+
+class MyObject(object):
+  def __init__(self, *args, **kw):
+    assert not args, 'No positional parameters are supposed by constructor'
+
+    for (key, value) in kw.items():
+      setattr(self, key, value)
+
+  def __eq__(self, other):
+    if not isinstance(other, type(self)):
+      return False
+
+    if set(vars(self).keys()) != set(vars(other).keys()):
+      return False
+
+    for (key, value) in vars(self).items():
+      if value != getattr(other, key):
+        return False
+
+    return True
+
+x = MyObject(foo='bar')
+print vars(x)
+
+y = x
+print 'Equal: {expr}'.format(expr=y == x)
+print 'Is: {expr}'.format(expr=y is x)
+
+y = copy.deepcopy(x)
+print 'Equal: {expr}'.format(expr=y == x)
+print 'Is: {expr}'.format(expr=y is x)
+
+del y.foo
+print 'Equal: {expr}'.format(expr=y == x)
+print 'Is: {expr}'.format(expr=y is x)

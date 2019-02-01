@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+class MyObject(object):
+  def __init__(self):
+    self.x = '1'
+    self.y = '2'
+
+obj = MyObject()
+print vars(obj)
+del obj.x
+print vars(obj)

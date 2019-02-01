@@ -1,0 +1,10 @@
+#! /usr/bin/env python
+
+def see(label):
+  print label
+  value = eval(label)
+  for c in value:
+    print '  {decimal:02x} {c!r}'.format(decimal=int(c), **locals())
+  print ''
+
+see('unichr(9473)')

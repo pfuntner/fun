@@ -1,0 +1,20 @@
+# There is no pound-hash operator because I intend this script to be called using `py -2 printme` or `py -3 printme`
+
+import sys
+
+def test(stmt):
+  sys.stdout.write('\nTesting {stmt!r}\n'.format(**locals()))
+  try:
+    exec(stmt)
+  except Exception as e:
+    sys.stderr.write('Caught: {e}\n'.format(**locals()))
+
+sys.stdout.write('Welcome to Python {version}\n'.format(version=sys.version))
+
+# this will fail from Python 3 because `print` is a function call and there are no parentheses
+test('print sys.argv')
+
+# this will work from Python 2 because the parentheses are essentially ignored.  `print` is still executed as a statement (not a function)
+# and the parentheses just wrap a string.  They're not neceessary in this example but they don't hurt but they don't help either.  They could
+# be used to express a tuple but an embedded comma such as `(expr , )` would necessary to accomplish that.
+test('print(sys.argv)')

@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+import random
+import socket
+import struct
+
+ips = []
+for num in range(10):
+  ips.append('1.2.3.{num}'.format(**locals()))
+  ips.append('2.2.3.{num}'.format(**locals()))
+  ips.append('100.2.3.{num}'.format(**locals()))
+
+ips = sorted(ips, key=lambda datum: random.random())
+print 'Before: {ips}'.format(**locals())
+
+ips = sorted(ips, key=lambda l_ip: struct.unpack("!L", socket.inet_aton(l_ip))[0])
+print 'After: {ips}'.format(**locals())

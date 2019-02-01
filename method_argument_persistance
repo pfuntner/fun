@@ -1,0 +1,8 @@
+#! /usr/bin/python
+
+def fun(x):
+  x['bruno'] = 'me'
+
+var = {}
+fun(var)
+print var

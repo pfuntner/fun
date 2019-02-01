@@ -1,0 +1,55 @@
+#! /usr/bin/env python
+
+import sys
+import getopt
+import subprocess
+
+def debug(msg):
+  if verbose:
+    sys.stderr.write('{msg}\n'.format(**locals()))
+
+def syntax(msg=None):
+  if msg:
+    sys.stderr.write('{msg}\n'.format(**locals()))
+  sys.stderr.write('Syntax: {pgm} [user@]node[,[user@]node ... ] cmd\n'.format(pgm=sys.argv[0]))
+  exit(1)
+
+def reform(cmd):
+  cmd = ['\'%s\'' % s.replace('\'', '\\\'') for s in cmd]
+  return ' '.join(cmd)
+
+quiet = True
+verbose = False
+(opts, args) = ([], [])
+try:
+  (opts, args) = getopt.getopt(sys.argv[1:], 'qv', ['quiet', 'verbose'])
+except Exception as e:
+  syntax('Caught `{e}`'.format(**locals()))
+
+for (opt, arg) in opts:
+  if opt in ['-v', '--verbose']:
+    verbose = not verbose
+  elif opt in ['-q', '--quiet']:
+    quiet = not quiet
+  else:
+    syntax('Unexpected option {opt!r}'.format(**locals()))
+
+if len(args) < 2:
+  syntax()
+
+hosts = args[0].split(',')
+cmd = args[1:]
+chain = []
+
+assert len(hosts) == 1
+
+for host in hosts[-1::-1]:
+  # cmd = ['ssh', host] + (['-q'] if quiet else []) + ['bash', '-c', reform(cmd)]
+  # chain += ['ssh'] + (['-q'] if quiet else []) + [host, 'bash', '-c', 'base64 -d | bash']
+  chain += ['ssh'] + (['-q'] if quiet else []) + [host, 'bash', '-c', '"base64 -d | bash"']
+  debug(chain)
+
+p = subprocess.Popen(chain, stdin=subprocess.PIPE)
+(stdout, stderr) = p.communicate(' '.join(cmd).encode('base64'))
+rc = p.wait()
+exit(rc)

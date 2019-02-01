@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+
+import sys
+import argparse
+
+def see(expr):
+  value = eval(expr)
+  sys.stderr.write('{expr}: {value!r}\n'.format(**locals()))
+
+parser = argparse.ArgumentParser()
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--opt1', dest='opt1', action='store_true',  help='Option 1')
+group.add_argument('--opt2', dest='opt2', action='store_true',  help='Option 2')
+
+args = parser.parse_args()
+
+see('args.opt1')
+see('args.opt2')
+
+print 'Done'

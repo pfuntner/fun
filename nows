@@ -1,0 +1,19 @@
+#! /usr/bin/python
+
+import time
+import datetime
+
+def see(expr):
+  value = eval(expr)
+  print '{value}\t{expr}'.format(now=now, **locals())
+  
+def dirs(expr):
+  print '{expr}: {dirs}'.format(expr=expr, dirs=[elem for elem in dir(eval(expr)) if elem[0] != '_'])
+
+now = datetime.datetime.now()
+see('now')
+see('now.microsecond')
+dirs('now')
+print ''
+see('time.time()')
+see('(now - datetime.datetime.fromtimestamp(0)).total_seconds()')

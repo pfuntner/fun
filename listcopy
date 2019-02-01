@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+class Cls(object):
+  def __init__(self, value):
+    self.value = value
+
+x = [Cls(value) for value in range(10)]
+# y = x[:]
+y = list(x)
+
+y.pop()
+y[0].value = 42
+
+print [datum.value for datum in x]
+print [datum.value for datum in y]

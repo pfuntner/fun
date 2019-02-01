@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+
+import hashlib
+
+hashes = {}
+bad = []
+# for algo in hashlib.algorithms_guaranteed:
+for algo in hashlib.algorithms_available:
+  try:
+    # hashes[algo] = getattr(hashlib, algo)()
+    hashes[algo] = hashlib.new(algo)
+  except Exception as e:
+    # print 'Caught `{e!s}` for algorithm {algo}'.format(**locals())
+    bad.append(algo)
+
+if bad:
+  print 'Bad algorithms: {bad}'.format(**locals())
+else:
+  print 'No bad algorithms'
+
+with open('/dev/null') as stream:
+  data = stream.read()
+  for (algo, hash) in hashes.items():
+    hash.update(data)
+
+for (algo, hash) in hashes.items():
+  print '{algo}\t{digest}'.format(digest=hash.hexdigest(), **locals())

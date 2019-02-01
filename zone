@@ -1,0 +1,59 @@
+#! /usr/bin/env python
+
+import math
+import datetime
+
+def secs(ts):
+  return (ts-epoch).total_seconds()
+
+def parseTimestamp(s):
+  """
+     Parameters:
+       s: a timestamp string with a timezone such as: 'Wed Nov 1 16:07:15 2017 -0400'
+     Returns:
+       seconds since the epoch (1970/01/01 00:00:00 UTC)
+  """
+  tokens = s.split()
+  timezone = tokens.pop()
+  offset = datetime.timedelta(hours=(int(timezone[1:3]) + int(timezone[3:])/60.0))
+  direction = timezone[0]
+  print 'offset: {direction}{offset}'.format(**locals())
+
+  # parse remaining tokens
+  timestamp = datetime.datetime.strptime(' '.join(tokens), '%a %b %d %H:%M:%S %Y')
+  print 'Initially, timestamp is {timestamp}'.format(**locals())
+
+  # adjust to UTC
+  if local_direction == '+':
+    timestamp -= local_offset
+  else:
+    timestamp += local_offset
+  print 'After adjusting for local timezone, timestamp is {timestamp}'.format(**locals())
+
+  # adjust by indicated offset
+  if direction == '+':
+    timestamp += offset
+  else:
+    timestamp -= offset
+  print 'After adjusting for desired timezone, timestamp is {timestamp}'.format(**locals())
+
+  return secs(timestamp)
+
+def diff(num1, num2):
+  return math.fabs(num1 - num2)
+
+def test(s):
+  print '{s}: {result}'.format(s=s, result=datetime.datetime.utcfromtimestamp(parseTimestamp(s)))
+
+epoch = datetime.datetime.utcfromtimestamp(0)
+# local_epoch = datetime.datetime.fromtimestamp(0)
+
+now = datetime.datetime.now()
+utcnow = datetime.datetime.utcnow()
+
+local_offset = datetime.timedelta(hours=(int(diff(secs(utcnow), secs(now)) / 60.0 / 60.0)))
+local_direction = '+' if now > utcnow else '-'
+
+print 'local_offset: {local_direction}{local_offset}'.format(**locals())
+
+test('Wed Oct 10 9:53:00 2018 -0400')

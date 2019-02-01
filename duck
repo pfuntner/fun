@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+"""
+   From https://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons
+"""
+
+@singleton
+class Duck(object):
+    pass
+
+if Duck() is Duck():
+    print "It works!"
+else:
+    print "It doesn't work!"

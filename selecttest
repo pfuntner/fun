@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+
+import os
+import time
+import select
+
+# stream = open('/home/jpfuntne/.bash_profile', 'r')
+
+(read_fd, write_fd) = os.pipe()
+read_stream = os.fdopen(read_fd, 'r')
+write_stream = os.fdopen(write_fd, 'w')
+
+write_stream.write('This is a test')
+write_stream.close()
+
+bytes = 0
+done = False
+while not done:
+  reads, _, _ = select.select([read_stream], [], [], 0)
+  if reads:
+    c = read_stream.read(1)
+    assert len(c) == 1, 'read_stream.read() returned {c!r} after reading {bytes} bytes'.format(**locals())
+    print '{bytes} {c!r}'.format(**locals())
+    bytes += 1
+  else:
+    print 'not ready'
+    time.sleep(.1)
+print 'read {bytes} bytes'.format(**locals())

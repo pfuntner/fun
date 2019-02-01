@@ -1,0 +1,16 @@
+#! /usr/bin/env python
+
+# import pdb
+import sys
+import datetime
+import traceback
+
+def debug(msg):
+  now = datetime.datetime.now()
+  stack = traceback.extract_stack()
+  # pdb.set_trace()
+  # [('./caller', 13, '<module>', "debug('Hello, world')"), ('./caller', 9, 'debug', 'stack = traceback.extract_stack()')]
+  caller = '{file}:{linenum}'.format(file=stack[-2][0], linenum=stack[-2][1])
+  sys.stderr.write('{now} {caller}: {msg}\n'.format(**locals()))
+
+debug('Hello, world')

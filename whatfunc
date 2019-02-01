@@ -1,0 +1,8 @@
+#! /usr/bin/env python
+
+class Obj(object):
+  def foo(self):
+    pass
+
+obj = Obj()
+print str(obj.foo)
