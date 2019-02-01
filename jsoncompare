@@ -1,0 +1,36 @@
+#! /usr/bin/env python
+
+import copy
+
+def test(expression):
+  print "{expression}: {value}".format(value=repr(eval(expression)), **locals())
+
+x = [
+      1,
+      {
+        2.1: "foo",
+        2.2: None,
+      },
+      3.0,
+    ]
+
+y = [
+      1,
+      {
+        2.2: None,
+        2.1: "foo",
+      },
+      3.0,
+    ]
+
+z = copy.deepcopy(x)
+
+test("x")
+test("y")
+test("z")
+test("sorted(z)")
+
+test("x == y")
+test("x == z")
+test("x == y == z")
+test("x == sorted(z)")
