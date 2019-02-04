@@ -1,0 +1,32 @@
+#! /usr/bin/env python
+
+import time
+import logging
+import threading
+
+def write(msg):
+  threadid = threading.current_thread().name
+  log.info('{threadid} {msg}'.format(**locals()))
+
+def fun():
+  write('Hello from fun()')
+  setattr(threading.current_thread(), 'data', 42)
+  time.sleep(15)
+  write('Goodbye from fun()')
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+write('Starting thread')
+thread = threading.Thread(target=fun)
+thread.start()
+time.sleep(5)
+write('thread.data: {thread.data}'.format(**locals()))
+
+# write(dir(thread))
+
+while thread.is_alive():
+  write('Waiting for thread to end')
+  time.sleep(5)
+write('Thread is done')
