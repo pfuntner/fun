@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+class MyClass(object):
+  data = 42
+
+  @staticmethod
+  def getdata():
+    return MyClass.data
+
+obj = MyClass()
+print obj.getdata()

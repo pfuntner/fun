@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+
+import logging
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s', filename='logswitch.log')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+# log.info('before switch')
+# logging.basicConfig(filename='logswitch.log')
+# log = logging.getLogger()
+log.info('after switch')
