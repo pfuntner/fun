@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+
+import re
+import time
+import signal
+import logging
+import argparse
+import datetime
+
+def handler(signum, handler):
+  log.debug('handler got signal {signum} ({name})'.format(name=signals.get(signum, '?'), **locals()))
+  duration = datetime.datetime.now() - start
+  log.debug('Duration: {duration!s}'.format(**locals()))
+  exit(1)
+
+signal.signal(signal.SIGTERM, handler)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', dest='verbose', action='count', help='Enable debugging')
+parser.add_argument('seconds', help='Number of seconds to sleep (a float)', type=float)
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+regexp = re.compile('^SIG[A-Z0-9]+$')
+signals = {}
+for name in [name for name in dir(signal) if regexp.search(name)]:
+  signals[getattr(signal, name)] = name
+log.debug('signals: {signals}'.format(**locals()))
+
+start = datetime.datetime.now()
+log.debug('Starting sleep for {args.seconds} seconds'.format(**locals()))
+time.sleep(args.seconds)
+duration = datetime.datetime.now() - start
+log.debug('Duration: {duration!s}'.format(**locals()))
+exit(0)
