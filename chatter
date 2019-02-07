@@ -1,0 +1,10 @@
+#! /usr/bin/env python
+
+import time
+import datetime
+
+iteration = 0
+while True:
+  iteration += 1
+  print '{iteration:3d} {now}'.format(now=datetime.datetime.now(), **locals())
+  time.sleep(1)
