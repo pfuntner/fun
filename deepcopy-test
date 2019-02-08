@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import copy
+import string
 
 class MyObject(object):
   def __init__(self, *args, **kw):
@@ -22,6 +23,11 @@ class MyObject(object):
 
     return True
 
+def see(*exprs):
+  for expr in exprs:
+    value = eval(expr)
+    print '{expr}: {value!r}'.format(**locals())
+
 x = MyObject(foo='bar')
 print vars(x)
 
@@ -36,3 +42,15 @@ print 'Is: {expr}'.format(expr=y is x)
 del y.foo
 print 'Equal: {expr}'.format(expr=y == x)
 print 'Is: {expr}'.format(expr=y is x)
+
+print ''
+chars = [c for c in string.letters]
+x = {char: pos for (pos, char) in enumerate(chars)}
+
+y = copy.deepcopy(x)
+
+see('x', 'y', 'x == y')
+
+print ''
+del y['a']
+see('x', 'y', 'x == y')
