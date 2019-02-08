@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+
+"""
+   Find bash-style substitutions:
+     ${name}
+"""
+
+import re
+import sys
+import logging
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', dest='verbose', action='count', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+
+if sys.stdin.isatty():
+  log.critical('stdin must be redirected')
+  exit(1)
+
+regexps = [
+  re.compile(r'\$\{(\w+)\}')
+]
+
+names = []
+
+lineno = 0
+for line in sys.stdin.read().splitlines():
+  lineno += 1
+  for regexp in regexps:
+    hits = regexp.findall(line)
+    if hits:
+      for name in hits:
+        log.debug('{lineno} {line!r} {name}'.format(**locals()))
+        names.append(name)
+
+print '\n'.join(sorted(set(names)))
