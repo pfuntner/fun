@@ -1,0 +1,10 @@
+#! /usr/bin/python
+
+import re
+import pdb
+
+s = '        RX packets 38048827  bytes 57407449925 (57.4 GB)'
+regexp = re.compile('(RX|TX)\\s+packets\\s+\\d+\\s+bytes\\s+(\\d+)\\s+')
+
+print regexp.search(s)
+pdb.set_trace()

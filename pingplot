@@ -1,0 +1,32 @@
+#! /usr/bin/python
+
+import sys
+import random
+import datetime
+import matplotlib.pyplot as plt
+
+infinity = float("infinity")
+infinity = 10000
+
+x = []
+y = []
+
+now = datetime.datetime.now() - datetime.timedelta(seconds=random.randint(0,10*365*24*60*60))
+
+for iteration in range(50):
+
+  if (iteration%5) == 0:
+    curr = infinity
+  else:
+    curr = 50+random.randint(-5,5)
+
+  x.append(now)
+  y.append(curr)
+
+  now += datetime.timedelta(seconds=random.randint(0, 24*60*60))
+
+print [(x[pos], y[pos]) for pos in range(len(x))]
+
+plt.plot(x, y)
+plt.ylim(0, 100)
+plt.show()
