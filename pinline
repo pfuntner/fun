@@ -1,0 +1,54 @@
+#! /usr/bin/env python
+
+"""
+   Playing with inline Python
+"""
+
+import os
+import subprocess
+
+# this script will be run on the target system
+script = """\
+import os
+import socket
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r}'.format(**locals())
+
+see('socket.gethostname()')
+files = os.listdir('.')
+for (pos, file) in enumerate(files):
+  see('files[{pos}]'.format(**locals()))
+"""
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r}'.format(**locals())
+
+print 'localhost'
+p = subprocess.Popen('stdbuf -i0 -o0 -e0 python'.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(stdout, stderr) = p.communicate(script)
+rc = p.wait()
+see('rc')
+see('stdout')
+see('stderr')
+print ''
+
+print os.environ['DEV']
+p = subprocess.Popen('ssh {DEV} stdbuf -i0 -o0 -e0 python'.format(**os.environ).split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(stdout, stderr) = p.communicate(script)
+rc = p.wait()
+see('rc')
+see('stdout')
+see('stderr')
+print ''
+
+print os.environ['STAGING']
+p = subprocess.Popen('ssh {DEV} ssh ubuntu@{STAGING} stdbuf -i0 -o0 -e0 python'.format(**os.environ).split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+(stdout, stderr) = p.communicate(script)
+rc = p.wait()
+see('rc')
+see('stdout')
+see('stderr')
+print ''
