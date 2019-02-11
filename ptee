@@ -1,0 +1,65 @@
+#! /usr/bin/env python
+
+"""
+   This will simulate doing a "tee": having stdout directly to the console as well as saving it in a list for later processing.
+"""
+
+import os
+import sys
+import time
+import select
+import logging
+import threading
+import subprocess
+
+class CopyThread(threading.Thread):
+  def __init__(self, real_stdout, pipe):
+    self.buf = ''
+    self.real_stdout = real_stdout
+    self.pipe = pipe
+    self.stopped = False
+    super(CopyThread, self).__init__()
+
+  def run(self):
+    while not self.stopped:
+      (read_ready, write_ready, xlist_ready) = select.select([self.pipe], [], [], 0.1)
+      if read_ready:
+        line = self.pipe.readline()
+        if line:
+          self.real_stdout.write(line)
+          self.buf += line
+        else:
+          break
+
+  def stop(self):
+    self.stopped = True
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r}'.format(**locals())
+
+original_stdout_fd = os.dup(sys.stdout.fileno())
+original_stdout = os.fdopen(original_stdout_fd, 'w', 0)
+
+sys.stdout.close()
+(read_fd, write_fd) = os.pipe()
+os.dup2(write_fd, 1)
+sys.stdout = os.fdopen(1, 'w', 0)
+
+thread = CopyThread(original_stdout, os.fdopen(read_fd, 'r', 0))
+thread.start()
+
+print 'This is a test'
+
+subprocess.Popen(['date']).wait()
+
+time.sleep(5)
+
+thread.stop()
+
+while thread.is_alive():
+  time.sleep(.1)
+
+sys.stdout = original_stdout
+see('thread.buf')
+exit(0)
