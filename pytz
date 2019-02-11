@@ -1,0 +1,33 @@
+#! /usr/bin/python
+
+import datetime
+import pytz
+
+def seetime(timestamp):
+  return datetime.datetime.strftime(timestamp, "%a %Y-%m-%d %H:%M:%S %Z")
+
+def see(timestamp, gmt):
+  # print "%s %s" % (timestamp, timestamp-epoch)
+  print {"gmt": seetime(gmt), "local": seetime(timestamp), "diff": str(timestamp-gmt)}
+
+def test(secs, timezone):
+  base = datetime.datetime.fromtimestamp(secs)
+  see(timezone.localize(base), utcZone.localize(base))
+
+easternZone = pytz.timezone("US/Eastern")
+utcZone = pytz.utc
+
+epoch = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=utcZone)
+format = "%Y-%m-%d %H:%M:%S"
+
+inc = 60*60
+
+start = utcZone.localize(datetime.datetime.strptime("2017-01-01 00:00:00", format))
+stop = utcZone.localize(datetime.datetime.strptime("2017-12-31 23:59:59", format))
+
+secs = (start - epoch).total_seconds()
+stopSecs = (stop - epoch).total_seconds()
+
+while secs < stopSecs:
+  test(secs, easternZone)
+  secs += inc
