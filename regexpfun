@@ -1,0 +1,54 @@
+#! /usr/bin/env python
+
+import re
+import sys
+import json
+
+def process(pat, strs, re_flags=0):
+  out = {'pattern': pat, 'results': []}
+
+  for s in strs:
+    match = re.search(pat, s, re_flags)
+    out['results'].append(
+      {
+        'str': s,
+        'match': match.groups() if match else None,
+      }
+    )
+
+  json.dump(out, sys.stdout, indent=2, sort_keys=True)
+  print ''
+
+process(
+         '^(\d{4}-\d{2}-\d{2}\+\d{2}:\d{2}:\d{2}) (\w+):(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) (.*)$',
+         [
+           '2019-02-11+18:58:57 em:172.17.180.7 setting up',
+           '2019-02-13+07:59:00 cimc-techsupport-192.100.0.14: collecting',
+         ]
+       )
+
+process(
+         '^(\d{4}-\d{2}-\d{2}\+\d{2}:\d{2}:\d{2}) (\w+)(?::|-\w+-)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):?\s+(.*)$',
+         [
+           '2019-02-11+18:58:57 em:172.17.180.7 setting up',
+           '2019-02-13+07:59:00 cimc-techsupport-192.100.0.14: collecting',
+         ]
+       )
+
+process(
+         'saved to ([^,]+), size (\d+)',
+         [
+           'Saved to /tmp/em-172.17.180.7-vnf1vnfddeploymentem_1____2019_02_11__19_54_41___1549914881.tar, size 18114560',
+           'Saved to 192.200.0.1:/tmp/cimc_tsd_j18bxb_ospd_192_100_0_14_20190213_075849.tgz, size 2279671',
+         ],
+         re.IGNORECASE
+       )
+
+process(
+         'saved to (?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:)?([^,]+), size (\d+)',
+         [
+           'Saved to /tmp/em-172.17.180.7-vnf1vnfddeploymentem_1____2019_02_11__19_54_41___1549914881.tar, size 18114560',
+           'Saved to 192.200.0.1:/tmp/cimc_tsd_j18bxb_ospd_192_100_0_14_20190213_075849.tgz, size 2279671',
+         ],
+         re.IGNORECASE
+       )
