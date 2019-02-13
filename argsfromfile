@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+
+import argparse
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r}'.format(**locals())
+
+command_line = []
+with open('argsfromfile.txt') as stream:
+  for line in stream.read().splitlines():
+    for token in line.split():
+      command_line.append(token)
+
+print command_line
+
+parser = argparse.ArgumentParser(description='Trying out parsing options from a file')
+parser.add_argument('-s', dest='stackrc')
+parser.add_argument('-i', dest='inventory')
+parser.add_argument('commands', metavar='command', nargs='+')
+
+args = parser.parse_args(command_line)
+see('args.stackrc')
+see('args.inventory')
+see('args.commands')

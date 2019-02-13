@@ -1,0 +1,8 @@
+for iteration in {1..10}
+do
+  timestamp=$(timestamp 2>/dev/null | head -1)
+  echo $timestamp | tee file-${timestamp}
+  git add file-${timestamp}
+  git commit -m "Creating file-${timestamp}"
+  sleep 1
+done

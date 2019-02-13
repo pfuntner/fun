@@ -1,0 +1,5 @@
+-s ~/stackrc 
+-i ../../vm_inventory-20190104.yaml 
+-- 
+cimc 192.100.0.14
+
