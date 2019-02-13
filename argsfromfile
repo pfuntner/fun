@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import argparse
+import pdb
 
 def see(expr):
   value = eval(expr)
@@ -23,3 +24,5 @@ args = parser.parse_args(command_line)
 see('args.stackrc')
 see('args.inventory')
 see('args.commands')
+
+pdb.set_trace()

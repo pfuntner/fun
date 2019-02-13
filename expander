@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+import os
+import sys
+
+while True:
+  sys.stdout.write('> ')
+  line = sys.stdin.readline()
+  if line:
+    line = line.strip('\n')
+    ret = os.path.expanduser(os.path.expandvars(line))
+    print '{line!r}: {ret}'.format(**locals())
+  else:
+    break
