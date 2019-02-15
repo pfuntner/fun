@@ -1,0 +1,30 @@
+#! /usr/bin/env python
+
+import os
+import random
+import select
+
+def create_pipe():
+  global read_pipes, write_pipes
+
+  (read, write) = os.pipe()
+  read_pipes.append(os.fdopen(read, 'r', 0))
+  write_pipes.append(os.fdopen(write, 'w', 0))
+
+read_pipes = []
+write_pipes = []
+
+create_pipe()
+create_pipe()
+
+for loop in range(10):
+  choice = random.choice(range(len(write_pipes)))
+  print 'Loop {loop} writing to pipe {choice}'.format(**locals())
+  write_pipes[choice].write('\0')
+  choice = None
+
+  (ready, junk, junk) = select.select(read_pipes, [], [])
+  assert len(ready) == 1
+  choice = read_pipes.index(ready[0])
+  print 'Loop {loop} reading from pipe {choice}'.format(**locals())
+  read_pipes[choice].read(1)

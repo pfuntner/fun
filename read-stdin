@@ -1,0 +1,16 @@
+#! /usr/bin/env python
+
+import os
+import sys
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r}'.format(**locals())
+
+filename = '/dev/stdin'
+see('os.path.isfile({filename!r})'.format(**locals()))
+
+with open(filename) as stream:
+  sys.stdout.write('> ')
+  line = stream.readline()
+  print 'Read: {line!r}'.format(**locals())

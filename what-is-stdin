@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+
+import os
+import sys
+import stat
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r}'.format(**locals())
+
+see('sys.stdin.isatty()')
+
+stat = os.fstat(sys.stdin.fileno())
+print str(stat)
+print 'mode: {stat.st_mode:o}'.format(**locals())
+see('stat.S_ISDIR(stat.st_mode)')
+see('stat.S_ISCHR(stat.st_mode)')
+see('stat.S_ISBLK(stat.st_mode)')
+see('stat.S_ISREG(stat.st_mode)')
+see('stat.S_ISFIFO(stat.st_mode)')
+see('stat.S_ISLNK(stat.st_mode)')
+see('stat.S_ISSOCK(stat.st_mode)')
