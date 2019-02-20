@@ -1,0 +1,16 @@
+#! /usr/bin/env python
+
+class Super(object):
+  @classmethod
+  def super_static(cls):
+    print 'inside super_static(), cls: ' + str(cls)
+    cls.sub_static()
+
+class Sub(Super):
+  @staticmethod
+  def sub_static():
+    print 'inside sub_static()'
+
+x = Sub()
+x.super_static()
+# x.sub_static()
