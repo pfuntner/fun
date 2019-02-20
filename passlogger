@@ -1,0 +1,48 @@
+#! /usr/bin/env python
+
+"""
+   Demonstrates how to hide passwords in logging messages, based on a tip in https://stackoverflow.com/questions/48380452/mask-out-sensitive-information-in-python-log
+"""
+
+import re
+import sys
+import logging
+import argparse
+
+class SensitiveFormatter(logging.Formatter):
+  regexp = re.compile('\S*PASSW(?:OR)?D\S*\W+([-a-zA-Z0-9!@#$%^&*()_+=[\]()\\|;:,./<>?]+)(:?\W|$)', re.IGNORECASE)
+
+  @classmethod
+  def _filter(cls, s):
+    for hit in list(cls.regexp.finditer(s))[-1::-1]:
+      s = s[:hit.start(1)] + ('*'*8) + s[hit.end(1):]
+    return s
+
+  def format(self, record):
+    sys.stderr.write('record: {record!r}'.format(**locals()))
+    original = logging.Formatter.format(self, record)
+    return self._filter(original)
+
+parser = argparse.ArgumentParser(description='demonstrate logging with passwords hidden')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+LOG_FORMAT = '%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s'
+logging.basicConfig(format=LOG_FORMAT)
+log = logging.getLogger()
+for handler in logging.root.handlers:
+   handler.setFormatter(SensitiveFormatter(LOG_FORMAT))
+
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+obj = {
+        'password': 'secret',
+        'list': [
+          {
+            'PASSWD': 'secret',
+          },
+        ],
+      }
+
+logging.info(obj)
+logging.info('Password=shhhhhh')
