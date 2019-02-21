@@ -40,3 +40,7 @@ obj = {
 
 logging.info(obj)
 logging.info('Password=shhhhhh')
+
+creds = {'cimc': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds', 'scp': {'ip': '192.200.0.1', 'password': 'Foobar@123', 'user': 'stack'}}, 'em': {'login': {'password': 'Foobar@123', 'user': 'ubunt'}, 'reason': 'Credentials from /etc/creds'}, 'shell': {}, 'sosreport': {}, 'nexus': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds'}, 'uas': {'login': {'password': 'Foobar@123', 'user': 'ubunt'}, 'reason': 'Credentials from /etc/creds'}, 'cf': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds'}, 'esc': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds'}}
+
+logging.info('Credentials: {creds}'.format(**locals()))
