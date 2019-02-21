@@ -8,30 +8,18 @@ import re
 import sys
 import logging
 
-"""
 class SensitiveFormatter(logging.Formatter):
-  regexp = re.compile('\S*PASSW(?:OR)?D\S*\W+([-a-zA-Z0-9!@#$%^&*()_+=[\]()\\|;:,./<>?]+)(:?\W|$)', re.IGNORECASE)
+  regexp = re.compile('PASSW(?:OR)?D[\'"]?[ :\t=]*(?:(?:u?[\'"])?)([-a-zA-Z0-9!@#$%^&*()_+=[\]\\|;:,./<>?]+)', re.IGNORECASE)
 
   @classmethod
   def _filter(cls, s):
     for hit in list(cls.regexp.finditer(s))[-1::-1]:
+      sys.stderr.write('Processing {groups} at {start}:{end}\n'.format(
+        groups=hit.groups(),
+        start=hit.start(1),
+        end=hit.end(1),
+      ))
       s = s[:hit.start(1)] + ('*'*8) + s[hit.end(1):]
-    return s
-
-  def format(self, record):
-    original = logging.Formatter.format(self, record)
-    return self._filter(original)
-"""
-
-class SensitiveFormatter(logging.Formatter):
-  regexp = re.compile('\S*PASSW(?:OR)?D\S*\W+([-a-zA-Z0-9!@#$%^&*()_+=[\]()\\|;:,./<>?]+)(:?\W|$)', re.IGNORECASE)
-  replacement_string = '*'*8 # eight asterisks
-
-  @classmethod
-  def _filter(cls, s):
-    # we process the hits right to left so we don't disturb the beginning/ending positions of hits further to the right
-    for hit in list(cls.regexp.finditer(s))[-1::-1]:
-      s = s[:hit.start(1)] + cls.replacement_string + s[hit.end(1):]
     return s
 
   def format(self, record):
@@ -58,6 +46,5 @@ obj = {
 logging.info(obj)
 logging.info('Password=shhhhhh')
 
-creds = {'cimc': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds', 'scp': {'ip': '192.200.0.1', 'password': 'Foobar@123', 'user': 'stack'}}, 'em': {'login': {'password': 'Foobar@123', 'user': 'ubunt'}, 'reason': 'Credentials from /etc/creds'}, 'shell': {}, 'sosreport': {}, 'nexus': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds'}, 'uas': {'login': {'password': 'Foobar@123', 'user': 'ubunt'}, 'reason': 'Credentials from /etc/creds'}, 'cf': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds'}, 'esc': {'login': {'password': 'Foobar@123', 'user': 'admin'}, 'reason': 'Credentials from /etc/creds'}}
-
+creds = {u'cimc': {u'login': {u'password': u'Foobar@123', u'user': u'admin'}, u'reason': u'Credentials from /etc/creds', u'scp': {u'ip': '192.200.0.1', u'password': u'Foobar@123', u'user': u'stack'}}, u'em': {u'login': {u'password': u'Foobar@123', u'user': u'ubuntu'}, u'reason': u'Credentials from /etc/creds'}, u'shell': {}, u'sosreport': {}, u'nexus': {u'login': {u'password': u'Foobar@123', u'user': u'admin'}, u'reason': u'Credentials from /etc/creds'}, u'uas': {u'login': {u'password': u'Foobar@123', u'user': u'ubuntu'}, u'reason': u'Credentials from /etc/creds'}, u'cf': {u'login': {u'password': u'Foobar@123', u'user': u'admin'}, u'reason': u'Credentials from /etc/creds'}, u'esc': {u'login': {u'password': u'Foobar@123', u'user': u'admin'}, u'reason': u'Credentials from /etc/creds'}}
 logging.info('Credentials: {creds}'.format(**locals()))
