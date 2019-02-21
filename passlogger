@@ -8,6 +8,7 @@ import re
 import sys
 import logging
 
+"""
 class SensitiveFormatter(logging.Formatter):
   regexp = re.compile('\S*PASSW(?:OR)?D\S*\W+([-a-zA-Z0-9!@#$%^&*()_+=[\]()\\|;:,./<>?]+)(:?\W|$)', re.IGNORECASE)
 
@@ -15,6 +16,22 @@ class SensitiveFormatter(logging.Formatter):
   def _filter(cls, s):
     for hit in list(cls.regexp.finditer(s))[-1::-1]:
       s = s[:hit.start(1)] + ('*'*8) + s[hit.end(1):]
+    return s
+
+  def format(self, record):
+    original = logging.Formatter.format(self, record)
+    return self._filter(original)
+"""
+
+class SensitiveFormatter(logging.Formatter):
+  regexp = re.compile('\S*PASSW(?:OR)?D\S*\W+([-a-zA-Z0-9!@#$%^&*()_+=[\]()\\|;:,./<>?]+)(:?\W|$)', re.IGNORECASE)
+  replacement_string = '*'*8 # eight asterisks
+
+  @classmethod
+  def _filter(cls, s):
+    # we process the hits right to left so we don't disturb the beginning/ending positions of hits further to the right
+    for hit in list(cls.regexp.finditer(s))[-1::-1]:
+      s = s[:hit.start(1)] + cls.replacement_string + s[hit.end(1):]
     return s
 
   def format(self, record):
