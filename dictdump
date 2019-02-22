@@ -1,0 +1,36 @@
+#! /usr/bin/env python
+
+def dump(root, path=[]):
+  """
+  Dumps a the leafs of a dictionary to stdout, typically preparing it for a bash shell.  For example, if the initial
+  root is:
+       {
+         'login': {
+           'user': USER,
+           'password': PASSWORD,
+         },
+         'reason': 'Description of how the credentials were arrived at'
+       }
+  The following will be printed to stdout:
+    login_user='USER'
+    login_password='PASSWORD'
+    reason='Description of how the credentials were arrived at'
+
+  :param root: The remainder of the dictionary to print
+  :param path: The path to root as a list of strings.
+  :return: None
+  """
+  if isinstance(root, dict):
+    for (key, subtree) in root.items():
+      dump(subtree, path + [key])
+  else:
+    print '{var}={root!r}'.format(var='_'.join(path), **locals())
+
+creds = {
+  'login': {
+    'user': 'USER',
+    'password': 'PASSWORD',
+  },
+  'reason': 'Description of how the credentials were arrived at'
+}
+dump(creds)
