@@ -4,6 +4,8 @@
 Example of using paramiko to get stdout, stderr, and exit value from a remote command.  This depends on the ssh key and does not require password.  It can probably be extended to accept a password instead.
 
 This also avoids exposing logging from paramiko which can happen if you're not careful about setting up logging on the caller.
+
+I have not been able to run this from cygwin yet but it works from Linux.
 """
 
 """
@@ -24,6 +26,7 @@ import os
 import sys
 import logging
 import argparse
+import traceback
 
 def ssh(user, host, cmd):
   rc = None
@@ -37,9 +40,12 @@ def ssh(user, host, cmd):
   client.load_host_keys(filename='/dev/null')
   client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
   try:
-    client.connect(username=user, hostname=host, key_filename=os.path.join(os.environ['HOME'], '.ssh/id_rsa'))
+    key_filename=os.path.join(os.environ['HOME'], '.ssh/id_rsa')
+    log.debug('key_filename: {key_filename!r}'.format(**locals()))
+    client.connect(username=user, hostname=host, key_filename=key_filename)
   except paramiko.SSHException as e:
-    log.warning('Cannot connect to controller {user}@{host}: {e!s}',format(**locals()))
+    log.warning('Cannot connect to {user}@{host}: {e!s}'.format(**locals()))
+    traceback.print_exc()
     client = None
   else:
     try:
@@ -47,6 +53,7 @@ def ssh(user, host, cmd):
       channel.exec_command(cmd)
     except paramiko.SSHException as e:
       log.warning('Cannot execute {cmd!r} on controller {user}@{host}: {e!s}', format(**locals()))
+      traceback.print_exc()
     else:
       rc = channel.recv_exit_status()
       stdout = channel.recv(2**64)
