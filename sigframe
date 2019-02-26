@@ -1,0 +1,36 @@
+#! /usr/bin/env python
+
+"""
+Explore the "frame" object that a signal handler receives.
+"""
+
+import re
+import pdb
+import time
+import signal
+import logging
+import argparse
+
+def handler(signum, frame):
+  signame = signals.get(signum, 'n/a')
+  log.debug('Received control for signal {signum} ({signame})'.format(**locals()))
+
+  for name in dir(frame):
+    if not re.match('_', name):
+      value = eval('frame.' + name)
+      log.debug('{name}: {value!r}'.format(**locals()))
+  pdb.set_trace()
+  
+parser = argparse.ArgumentParser()
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+signals = {eval('signal.' + name): name for name in dir(signal) if re.match('SIG', name)}
+signal.signal(signal.SIGALRM, handler)
+log.info('setting alarm')
+signal.alarm(5)
+time.sleep(10)
+log.info('exiting')
