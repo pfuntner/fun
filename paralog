@@ -1,0 +1,42 @@
+#! /usr/bin/env python
+
+import os
+import logging
+import argparse
+import paramiko
+
+def ssh(user, host, cmd):
+  rc = None
+  stdout = ''
+  stderr = ''
+  client = paramiko.SSHClient()
+  client.load_system_host_keys(filename='/dev/null')
+  client.load_host_keys(filename='/dev/null')
+  client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+  try:
+    client.connect(username=user, hostname=host, key_filename=os.path.join(os.environ['HOME'], '.ssh/id_rsa'))
+  except paramiko.SSHException as e:
+    log.warning('Cannot connect to controller {user}@{host}: {e!s}',format(**locals()))
+    client = None
+  else:
+    try:
+      (stdin, stdout, stderr) = client.exec_command(cmd)
+    except paramiko.SSHException as e:
+      log.warning('Cannot execute {cmd!r} on controller {user}@{host}: {e!s}', format(**locals()))
+    else:
+      stdin.close()
+      stdout = stdout.read()
+      stderr = stderr.read()
+  if client:
+    client.close()
+  return rc, stdout, stderr
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+print ssh('jpfuntne', os.environ['DEV'], 'hostname')
