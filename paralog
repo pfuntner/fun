@@ -6,6 +6,20 @@ Example of using paramiko to get stdout, stderr, and exit value from a remote co
 This also avoids exposing logging from paramiko which can happen if you're not careful about setting up logging on the caller.
 """
 
+"""
+Example:
+
+  bxb-mitg7-dev23 ~/python> ./paralog -n -v ubuntu $STAGING -- jpfuntne/bin/dummycmd -o out -e err -s 42
+  2019-02-26 10:43:30,410 DEBUG ./paralog:70 About to ssh
+  2019-02-26 10:43:30,410 DEBUG ./paralog:30 Importing paramiko
+  2019-02-26 10:43:42,692 DEBUG ./paralog:32 Imported paramiko
+  (42, 'out\n', 'err\n')
+  2019-02-26 10:43:48,654 DEBUG ./paralog:72 Back from ssh
+  bxb-mitg7-dev23 ~/python> 
+
+I don't know why paramiko takes so long.  The import itself seems to be very slow.
+"""
+
 import os
 import sys
 import logging
@@ -15,7 +29,9 @@ def ssh(user, host, cmd):
   rc = None
   stdout = ''
   stderr = ''
+  log.debug('Importing paramiko')
   paramiko = __import__('paramiko')
+  log.debug('Imported paramiko')
   client = paramiko.SSHClient()
   client.load_system_host_keys(filename='/dev/null')
   client.load_host_keys(filename='/dev/null')
