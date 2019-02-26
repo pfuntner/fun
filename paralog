@@ -1,14 +1,21 @@
 #! /usr/bin/env python
 
+"""
+Example of using paramiko to get stdout, stderr, and exit value from a remote command.  This depends on the ssh key and does not require password.  It can probably be extended to accept a password instead.
+
+This also avoids exposing logging from paramiko which can happen if you're not careful about setting up logging on the caller.
+"""
+
 import os
+import sys
 import logging
 import argparse
-import paramiko
 
 def ssh(user, host, cmd):
   rc = None
   stdout = ''
   stderr = ''
+  paramiko = __import__('paramiko')
   client = paramiko.SSHClient()
   client.load_system_host_keys(filename='/dev/null')
   client.load_host_keys(filename='/dev/null')
@@ -20,23 +27,32 @@ def ssh(user, host, cmd):
     client = None
   else:
     try:
-      (stdin, stdout, stderr) = client.exec_command(cmd)
+      channel = client.get_transport().open_session()
+      channel.exec_command(cmd)
     except paramiko.SSHException as e:
       log.warning('Cannot execute {cmd!r} on controller {user}@{host}: {e!s}', format(**locals()))
     else:
-      stdin.close()
-      stdout = stdout.read()
-      stderr = stderr.read()
+      rc = channel.recv_exit_status()
+      stdout = channel.recv(2**64)
+      stderr = channel.recv_stderr(2**64)
   if client:
     client.close()
   return rc, stdout, stderr
 
+base = os.path.basename(sys.argv[0])
 parser = argparse.ArgumentParser()
+parser.add_argument('user', help='Remote user to which to ssh')
+parser.add_argument('system', help='Remote system to which to ssh')
+parser.add_argument('cmd', help='Command to execute on remote system')
+parser.add_argument('args', metavar='arg', nargs='*', help='Command arguments for remote system')
+parser.add_argument('-n', '--name', dest='name', action='store_true', help='Use logging.getlogger({base!r})'.format(**locals()))
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
-log = logging.getLogger()
+log = logging.getLogger(base if args.name else None)
 log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
 
-print ssh('jpfuntne', os.environ['DEV'], 'hostname')
+log.debug('About to ssh')
+print ssh(args.user, args.system, '{cmd} {args}'.format(cmd=args.cmd, args=' '.join(args.args)))
+log.debug('Back from ssh')
