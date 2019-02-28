@@ -28,7 +28,7 @@ import logging
 import argparse
 import traceback
 
-def ssh(user, host, cmd):
+def ssh(user, host, cmd, stdin=None):
   rc = None
   stdout = ''
   stderr = ''
@@ -55,10 +55,20 @@ def ssh(user, host, cmd):
       log.warning('Cannot execute {cmd!r} on controller {user}@{host}: {e!s}', format(**locals()))
       traceback.print_exc()
     else:
+      if stdin:
+        log.debug('Sending {stdin!r} to stdin'.format(**locals()))
+        channel.send(stdin)
+      channel.shutdown_write()
+      log.debug('stdin was shut down')
+
+      log.debug('Getting exit status')
       rc = channel.recv_exit_status()
+      log.debug('Reading stdout')
       stdout = channel.recv(2**64)
+      log.debug('Reading stderr')
       stderr = channel.recv_stderr(2**64)
   if client:
+    log.debug('Closing paramiko client')
     client.close()
   return rc, stdout, stderr
 
@@ -76,6 +86,12 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(
 log = logging.getLogger(base if args.name else None)
 log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
 
+if not sys.stdin.isatty():
+  log.debug('Caching stdin for command')
+  stdin = sys.stdin.read()
+else:
+  stdin = None
+
 log.debug('About to ssh')
-print ssh(args.user, args.system, '{cmd} {args}'.format(cmd=args.cmd, args=' '.join(args.args)))
+print ssh(args.user, args.system, '{cmd} {args}'.format(cmd=args.cmd, args=' '.join(args.args)), stdin)
 log.debug('Back from ssh')
