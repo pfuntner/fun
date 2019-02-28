@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+
+import subprocess
+
+p = subprocess.Popen(['echo', 'hello', 'world', 'No.1'])
+p.wait()
+
+p = subprocess.Popen(['echo', 'hello', 'world', 'No.2'], shell=True)
+p.wait()
+
+p = subprocess.Popen(' '.join(['echo', 'hello', 'world', 'No.3']), shell=True)
+p.wait()
