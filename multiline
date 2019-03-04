@@ -1,0 +1,23 @@
+#! /usr/bin/env python
+
+"""
+I seem to have a misconception about how the '^' and '$' metacharacters work with re.MULTILINE so I'm going to explore that.
+"""
+
+import re
+
+def tryit(pat, s, flags=0):
+  hit=re.search(pat, s, flags)
+  print '{s!r} {pat!r} {flags} {result}'.format(
+   result='{start} {end}'.format(start=hit.start(0), end=hit.end(0)) if hit else 'None',
+   **locals())
+
+s = """
+# common.py:ssh goes here
+"""
+
+source_path = 'common.py'
+method_name = 'ssh'
+pat = '^# {source_path}:{method_name} goes here$'.format(**locals())
+
+tryit(pat, s, re.MULTILINE)

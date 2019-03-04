@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+
+import os
+import logging
+import argparse
+import subprocess
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+os.environ['FOO'] = 'bar'
+
+p = subprocess.Popen('echo $FOO', shell=True)
+p.wait()
+
+p = subprocess.Popen(['env'])
+p.wait()
