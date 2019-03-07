@@ -63,7 +63,7 @@ else:
   try:
     channel = client.get_transport().open_session()
     log.debug('Executing {args.cmd}'.format(**locals()))
-    channel.exec_command(*args.cmd)
+    channel.exec_command(' '.join(args.cmd))
   except paramiko.SSHException as e:
     log.warning('Cannot execute {args.cmd} on {user}@{host}: {e!s}'.format(**locals()))
   else:
