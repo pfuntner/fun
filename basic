@@ -3,7 +3,7 @@
 import logging
 import argparse
 
-parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY))
+parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY)
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
 args = parser.parse_args()
 
