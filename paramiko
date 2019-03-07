@@ -1,0 +1,90 @@
+#! /usr/bin/env python
+
+import os
+import re
+import pwd
+import sys
+import logging
+import getpass
+import argparse
+import paramiko
+
+parser = argparse.ArgumentParser(description='General purpose Paramiko driver')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+parser.add_argument('-k', '--key', action='store_true', help='Use ssh RSA keys rather than prompting for password')
+parser.add_argument('node', help='Remote system/ip: user@foo, user@100.0.0.1, foo, etc')
+parser.add_argument('cmd', nargs='+', help='Remote command')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+regexp = re.compile('(?:([^@]+)@)?(.+)$')
+match = regexp.match(args.node)
+if not match:
+  parser.error('Congratulations, bonehead!  Somehow, {args.node!r} failed the {regexp.pattern!r} pattern to parse out the remote user & system!  You deserve a treat.'.format(**locals()))
+
+if match.group(1):
+  user = match.group(1)
+  host = match.group(2)
+else:
+  user = pwd.getpwuid( os.getuid() ).pw_name
+  host = args.node
+log.debug('Remote user&host: {user}@{host}'.format(**locals()))
+
+if args.key:
+  password = None
+  keyfile = os.path.join(os.environ['HOME'], '.ssh/id_rsa')
+  log.debug('Offering private RSA key file: {keyfile}'.format(**locals()))
+else:
+  password = getpass.getpass('Password for {user}@{host}: '.format(**locals()))
+  keyfile = None
+
+rc = -1
+
+client = paramiko.SSHClient()
+client.load_system_host_keys(filename='/dev/null')
+client.load_host_keys(filename='/dev/null')
+client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+try:
+  log.debug('Connecting to {user}@{host}'.format(**locals()))
+  client.connect(
+    username=user,
+    password=password,
+    hostname=host,
+    key_filename=keyfile,
+  )
+except paramiko.SSHException as e:
+  log.warning('Cannot connect to {user}@{host}: {e!s}'.format(**locals()))
+  client = None
+else:
+  log.debug('Connected to {user}@{host}'.format(**locals()))
+  try:
+    channel = client.get_transport().open_session()
+    log.debug('Executing {args.cmd}'.format(**locals()))
+    channel.exec_command(*args.cmd)
+  except paramiko.SSHException as e:
+    log.warning('Cannot execute {args.cmd} on {user}@{host}: {e!s}'.format(**locals()))
+  else:
+    if not sys.stdin.isatty():
+      stdin = sys.stdin.read()
+      log.debug('Sending {stdin!r} as stdin ({bytes} bytes)'.format(bytes=len(stdin), **locals()))
+      sent = 0
+      while sent < len(stdin):
+        bytes = channel.send(stdin[sent:])
+        log.debug('Sent {bytes} bytes'.format(**locals()))
+        sent += bytes
+    channel.shutdown_write() # send EOF to remote stdin
+    log.debug('Getting exit status')
+    rc = channel.recv_exit_status()
+    log.debug('Exit status {rc}'.format(**locals()))
+
+    log.debug('Getting stdout')
+    sys.stdout.write(channel.recv(2**64))
+
+    log.debug('Getting stderr')
+    sys.stderr.write(channel.recv_stderr(2**64))
+if client:
+  log.debug('Closing paramiko client')
+  client.close()
