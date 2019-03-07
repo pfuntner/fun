@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+import time
+def fun(*args):
+  print 'fun() sees: {args}'.format(**locals())
+  return args
+
+s = 'bruno'
+ret = fun(*s)
+time.sleep(5)
+print ret
