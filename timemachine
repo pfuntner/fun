@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+import datetime
+
+def see(*exprs):
+  values = []
+  for expr in exprs:
+    values.append(str(eval(expr)))
+
+  print '{exprs}: {values}'.format(**locals())
+
+t1 = datetime.datetime.now()
+t2 = t1 + datetime.timedelta(seconds=1)
+
+see('t2', 't1', 't2-t1')
+see('t2', 't1', 't1-t2')
+see('t2', 't1', '(t1-t2).total_seconds()')
