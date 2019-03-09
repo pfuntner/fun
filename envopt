@@ -12,5 +12,5 @@ def show(expr):
   print '{expr}: {value!r}'.format(**locals())
 
 verbose = os.environ.get('VERBOSE')
-verbose = re.match('((y(es?)?)|(t(r(ue?)?)?)|1)$', verbose if verbose else '', re.IGNORECASE) != None
+verbose = re.match('((y(es?)?)|(t(r(ue?)?)?)|1)$', verbose if verbose else '', re.IGNORECASE) is not None
 show('verbose')
