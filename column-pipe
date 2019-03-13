@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+import os
+import subprocess
+
+pipe = os.pipe()
+stream = os.fdopen(pipe[1], 'w')
+p = subprocess.Popen(['/usr/bin/column', '--table'], stdin=pipe[0], close_fds=[pipe[1]])
+stream.write('this is a test\nthis is not a test\n')
+stream.close()
+p.wait()
