@@ -1,9 +1,25 @@
 #! /usr/bin/env python
 
+import os
 import sys
 import time
+import logging
+import datetime
 import threading
 import subprocess
+
+def see(expr):
+  value = eval(expr)
+  log.debug('{expr}: {value!r}'.format(**locals()))
+
+def now():
+  return str(datetime.datetime.now())
+
+class Pipe(object):
+  def __init__(self):
+    self.pipe = os.pipe()
+    self.read = os.fdopen(self.pipe[0], 'r', 0)
+    self.write = os.fdopen(self.pipe[1], 'w', 0)
 
 class Echo(threading.Thread):
   def __init__(self, in_stream, out_stream):
@@ -16,16 +32,24 @@ class Echo(threading.Thread):
     while True:
       line = self.in_stream.readline()
       if line:
-        self.out_stream.write(line)
+        self.out_stream.write(now() + ' ' + line)
       else:
         break
   
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
 assert len(sys.argv) > 1, 'Syntax: {pgm} CMD ...'.format(pgm=sys.argv[0])
 
 threads = []
-p = subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-threads.append(Echo(p.stdout, sys.stdout))
-threads.append(Echo(p.stderr, sys.stderr))
+out_pipe = Pipe()
+err_pipe = Pipe()
+p = subprocess.Popen(sys.argv[1:], stdout=out_pipe.write, stderr=err_pipe.write)
+out_pipe.write.close()
+err_pipe.write.close()
+threads.append(Echo(out_pipe.read, sys.stdout))
+threads.append(Echo(err_pipe.read, sys.stderr))
 rc = p.wait()
 while threading.active_count() > 1:
   time.sleep(1)

@@ -3,10 +3,6 @@
 import os
 import subprocess
 
-pipe = os.pipe()
-p = subprocess.Popen(['column'], stdin=pipe[0])
-stream = os.fdopen(pipe[1], 'w')
-stream.write('this is a test\n')
-stream.write('this is not a test\n')
-stream.close()
+p = subprocess.Popen(['/usr/bin/column', '--table'], stdin=subprocess.PIPE)
+p.communicate('this is a test\nthis is not a test\n')
 p.wait()

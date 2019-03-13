@@ -1,0 +1,33 @@
+#! /usr/bin/env python
+
+import sys
+import time
+import logging
+import datetime
+import argparse
+
+def now():
+  return str(datetime.datetime.now())
+
+def emit(stream, data):
+  if data:
+    stream.write('\n'.join(['{now} {datum}'.format(now=now(), datum=datum) for datum in data]) + '\n')
+
+parser = argparse.ArgumentParser(description='print specified stdout, stderr; sleep specified time; exit specified value')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+parser.add_argument('-o', '--stdout', dest='stdout', action='append', help='Print to stdout')
+parser.add_argument('-e', '--stderr', dest='stderr', action='append', help='Print to stderr')
+parser.add_argument('-x', '--exit', dest='exit', help='Exit value', type=int, default=0)
+parser.add_argument('-s', '--sleep', dest='sleep', help='Sleep N seconds', type=int, default=0)
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+emit(sys.stdout, args.stdout)
+emit(sys.stderr, args.stderr)
+
+time.sleep(args.sleep)
+
+exit(args.exit)
