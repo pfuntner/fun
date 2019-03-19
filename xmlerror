@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+
+import sys
+import logging
+import argparse
+import xml.etree.ElementTree as ET
+
+parser = argparse.ArgumentParser(description='Playing with XML nodes')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+parser.add_argument('attrib', help='Attribute name to query')
+parser.add_argument('xml', help='XML string to parse')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+root = ET.fromstring(args.xml)
+print root.tag, root.attrib
+print root.attrib[args.attrib]
