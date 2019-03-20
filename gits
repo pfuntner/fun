@@ -1,0 +1,12 @@
+home=$(pwd)
+find . -name .git | while read gitfile
+do
+  dir=$(dirname $gitfile)
+  if cd $dir
+  then
+    banner $PWD
+    git branch && git log -1
+    echo
+    cd $home
+  fi
+done

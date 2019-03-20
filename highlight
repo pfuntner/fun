@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+import re
+import sys
+
+assert not sys.stdin.isatty(), 'stdin must be directed'
+
+regexp = re.compile(sys.argv[1])
+
+border = (('*' * 80) + '\n') * 3
+for line in sys.stdin.read().splitlines():
+  highlight = regexp.search(line)
+  if highlight:
+    sys.stdout.write(border)
+  print line
+  if highlight:
+    sys.stdout.write(border)

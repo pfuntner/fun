@@ -1,0 +1,10 @@
+if [ "$BASH_SOURCE" != "$0" ]
+then
+  # Randy pointed me to a script like .bash_aodev in order to do a code checkout and build.  I made a copy
+  # of the script for myself and for a time I was sourcing it directly inside ~/.bashrc but I decided to 
+  # put the call in this small script instead.
+  source $HOME/.bash_aodev
+  cd /nobackup/jpfuntne/master/usp
+else
+  banner "script is not sourced"
+fi

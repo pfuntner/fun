@@ -1,0 +1,10 @@
+# set -x
+prevdir=$PWD
+find . -name .git | while read gitfile
+do
+  dir=$(dirname $gitfile)
+  cd $dir
+  # pwd
+  echo $dir $(git log -1 | head -3)
+  cd $prevdir
+done

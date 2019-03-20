@@ -1,0 +1,11 @@
+# set up a simple shell prompt
+
+if [ "$BASH_SOURCE" == "$0" ]
+then
+  echo "$0 is not sourced"
+  exit 1
+fi
+
+echo "Setting simple shell prompt"
+PS1='\h \w $ '
+true
