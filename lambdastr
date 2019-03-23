@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('amt', type=int)
+parser.add_argument('suffix', choices=['C','F'])
+args = parser.parse_args()
+
+func = '(args.amt-32) / (9.0/5) if args.suffix == \'F\' else (args.amt * (9.0/5)) + 32'
+lfunc = eval('lambda amt, suffix: (args-32) / (9.0/5) if suffix == \'F\' else (amt * (9.0/5)) + 32')
+
+print '{args.amt}{args.suffix} = {value}'.format(value=eval(func), **locals())
+
+print lfunc(args.amt, args.suffix)
