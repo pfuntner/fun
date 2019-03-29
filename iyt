@@ -1,0 +1,68 @@
+#! /usr/bin/env python
+
+import sys
+import pdb
+import logging
+import requests
+import argparse
+
+from lxml import html
+
+# from SecureKeyValues import SecureKeyValues
+
+"""
+import sys
+import requests
+"""
+
+def dynaload(path):
+  url = "https://raw.githubusercontent.com/{path}".format(**locals())
+  req = requests.get(url)
+  if req.status_code != 200:
+    sys.stderr.write("Error loading {url}:\n".format(**locals()))
+    for name in vars(req):
+      value = getattr(req, name)
+      sys.stderr.write("  {name}: {value}\n".format(**locals()))
+    exit(1)
+  return req.text.replace('"__main__"', '"__static_main__"')
+
+exec(dynaload('https://raw.githubusercontent.com/pfuntner/toys/master/bin/SecureKeyValues.py'))
+# pdb.set_trace()
+
+parser = argparse.ArgumentParser(description='ItsYourTurn frontend')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+store = SecureKeyValues('iyt', ssh=True)
+log.debug('store keys: {keys}'.format(keys=store.store.keys()))
+
+payload = {
+  'login': store.store['user'], 
+  'passwd': store.store['password'], 
+  # 'csrfmiddlewaretoken': '<CSRF_TOKEN>'
+}
+
+uri = 'https://itsyourturn.com'
+
+session = requests.Session()
+session.auth = (store.store['user'], store.store['password'])
+
+result = session.post(
+  uri + '/iyt.dll/loginverify',
+  data=payload,
+  headers=dict(referer=uri),
+)
+# tree = html.fromstring(result.text)
+# authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
+
+log.debug(result)
+print result.text
+
+print ''
+
+result = session.get(uri)
+print result.text
