@@ -1,0 +1,31 @@
+#! /usr/bin/env python
+
+import yaml
+import json
+
+# playing with YAML anchors and references
+
+raw = """
+- one:
+  - &anchor
+    key1: value1
+    key2: value2
+- two:
+  - *anchor
+"""
+
+obj = yaml.load(raw)
+
+print 'Originally:'
+print json.dumps(obj, sort_keys=True, indent=2)
+
+obj[0]['one'][0]['key2'] = 'value2.1'
+obj[0]['one'][0]['key3'] = 'value3'
+
+print '\nAfter update 1:'
+print json.dumps(obj, sort_keys=True, indent=2)
+
+obj[1]['two'][0]['key4'] = 'value4'
+
+print '\nAfter update 2:'
+print json.dumps(obj, sort_keys=True, indent=2)
