@@ -1,0 +1,53 @@
+#! /usr/bin/env python
+
+import random
+import logging
+
+class Cls1(object):
+  def __init__(self, value=None):
+    self.value = value or random.randint(-2**32, 2**32-1)
+    log.debug('{id:>08x}: {self.value}'.format(id=id(self), **locals()))
+
+  def __eq__(self, other):
+    ret = (type(self) == type(other)) and (self.value == other.value)
+    log.debug('{id:>08x}: {self.value} ? {other.value} => {ret}'.format(id=id(self), **locals()))
+    return ret
+
+  def __cmp__(self, other):
+    ret = self.value - other.value
+    log.debug('{id1:>08x}:{self.value} ? {id2:>08x}:{other.value} => {ret}'.format(id1=id(self), id2=id(other), **locals()))
+    return ret
+
+  def __hash__(self):
+    ret = hash(self.value)
+    log.debug('{id:>08x}: {self.value} => {ret}'.format(id=id(self), **locals()))
+    return ret
+
+def see(expr):
+  value = eval(expr)
+  log.debug('{expr}: {value!r}'.format(**locals()))
+
+# import argparse
+# 
+# parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY)
+# parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+# args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(funcName)s():%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+obj1 = Cls1(1)
+obj2 = Cls1()
+
+# makes use of __eq__()
+see('obj1 == obj2')
+
+list = [obj1, obj2]
+
+# makes use of __cmp__()
+list.sort()
+
+# makes use of __hash__()
+mapper = {obj1: None, obj2: None}
+see('len(mapper)')

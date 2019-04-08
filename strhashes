@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+import string
+
+def tryit(c):
+  global last
+  print '{hash:>12} 0{hash:>9o} 0x{hash:>08x} {c!r} {diff}'.format(hash=hash(c), diff=hash(c)-last if last else None, **locals())
+  last = hash(c)
+
+last = None
+
+for c in string.uppercase + string.lowercase:
+  tryit(c)
