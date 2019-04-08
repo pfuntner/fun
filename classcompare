@@ -39,15 +39,17 @@ log.setLevel(logging.DEBUG)
 
 obj1 = Cls1(1)
 obj2 = Cls1()
+obj3 = Cls1(1)
 
-# makes use of __eq__()
-see('obj1 == obj2')
+# __eq__()
+see('obj1 == obj2 == obj3')
+see('set((obj1, obj2, obj3))')
 
-list = [obj1, obj2]
+list = [obj1, obj2, obj3]
 
-# makes use of __cmp__()
+# __cmp__()
 list.sort()
 
-# makes use of __hash__()
-mapper = {obj1: None, obj2: None}
+# __hash__()
+mapper = {obj1: None, obj2: None, obj3: None}
 see('len(mapper)')
