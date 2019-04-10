@@ -1,21 +1,29 @@
 #! /usr/bin/env python
 
+import re
 import logging
 import argparse
 
 class Table(list):
+  regexp = re.compile(r'\{:[<>]')
+
   class Row(object):
     def __init__(self, *args):
       self.cols = args
 
-  def __init__(self, *headings):
+  def __init__(self, *headings, **vargs):
     global log
+
+    keys = set(vargs.keys()) - set(['centered'])
+    assert not keys, 'Invalid keywords: {keys}'.format(keys=', '.join(keys))
 
     if 'log' not in globals():
       log = logging.getLogger()
 
     super(Table, self).__init__()
     self.headings = [self.Row(*headings)] if headings else None
+
+    self.centered = vargs.get('centered', False)
 
   def append(self, *cols):
     super(Table, self).append(self.Row(*(str(col) for col in cols)))
@@ -76,10 +84,8 @@ class Table(list):
 
     for (row_num, row) in enumerate(rows):
       log.debug('Rendering row {row_num}: {row.cols}'.format(**locals()))
-      if self.headings and row_num == 0:
-        ret.append(format_string.replace('{>', '{<').format(*row.cols))
-      else:
-        ret.append(format_string.format(*row.cols))
+      cols = row.cols + tuple([''] * (len(widths) - len(row.cols)))
+      ret.append((self.regexp.sub('{:^' if self.centered else '{:<', format_string) if self.headings and row_num == 0 else format_string).format(*cols))
 
     return '\n'.join(ret)
 
@@ -87,9 +93,10 @@ if __name__ == '__main__':
   import math
 
   parser = argparse.ArgumentParser(description='Driver for Table class')
-  parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
   parser.add_argument('-H', '--headings', dest='headings', action='store_true', help='Use headings')
+  parser.add_argument('-c', '--centered', dest='centered', action='store_true', help='Center headings')
   parser.add_argument('-l', '--logging', dest='logging', action='store_false', help='Disable logging', default=True)
+  parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
   args = parser.parse_args()
 
   if args.logging:
@@ -98,7 +105,7 @@ if __name__ == '__main__':
     log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
 
   if args.headings:
-    table = Table('one', 'two', 'three', 'four')
+    table = Table('one', 'two', 'three', 'four', centered=args.centered)
   else:
     table = Table()
   table.append('a', 'b', 'c', '+1')
@@ -106,4 +113,5 @@ if __name__ == '__main__':
   table.append('1', '2', '3', 4)
   table.append('', '', '', 1e50)
   table.append('easy', 'as', 'pi', math.pi)
+  table.append('single column')
   print str(table)
