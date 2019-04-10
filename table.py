@@ -9,7 +9,7 @@ class Table(list):
 
   class Row(object):
     def __init__(self, *args):
-      self.cols = args
+      self.cols = tuple(map(str, args))
 
   def __init__(self, *headings, **vargs):
     global log
@@ -21,12 +21,14 @@ class Table(list):
     assert not keys, 'Invalid keywords: {keys}'.format(keys=', '.join(keys))
 
     super(Table, self).__init__()
-    self.headings = [self.Row(*headings)] if headings else None
+    self.headings = self.Row(*headings) if headings else None
 
     self.centered = vargs.get('centered', False)
 
-    self.widths = []
-    self.isNumerics = []
+    self.widths = [len(col) for col in self.headings.cols] if self.headings else []
+
+    # We'll assume that a column is numeric until we find an exception.
+    self.isNumerics = [True] * len(self.widths) if self.headings else []
 
   @classmethod
   def isNumeric(cls, value):
@@ -37,7 +39,7 @@ class Table(list):
       return False
     
   def append(self, *cols):
-    super(Table, self).append(self.Row(*map(str, cols)))
+    super(Table, self).append(self.Row(*cols))
     log.debug('There are now {rows} rows'.format(rows=len(self)))
    
     # maintain the maximum widths of columns and remember if a column is completely numeric or not
@@ -66,7 +68,7 @@ class Table(list):
 
   def __str__(self):
     log.debug('Rendering string with {rows} rows'.format(rows=len(self)))
-    return self.format((self.headings if self.headings else []) + self)
+    return self.format(([self.headings] if self.headings else []) + self)
 
   def format(self, rows):
     log.debug('widths: {self.widths}, isNumerics: {self.isNumerics}'.format(**locals()))
