@@ -1,0 +1,19 @@
+#! /usr/bin/env python
+
+import sys
+
+def see(expr):
+  value = eval(expr)
+  print '{expr}: {value!r} - {bytes} bytes'.format(bytes=sys.getsizeof(value), **locals())
+  print '  Attributes: {attrs}'.format(attrs=dir(value))
+  print ''
+
+a_list = ['a', 'bb', 'ccc', 'dddd', 'eeeee']
+a_tuple = tuple(a_list)
+a_set = set(a_list)
+a_frozen_set = frozenset(a_list)
+
+see('a_list')
+see('a_tuple')
+see('a_set')
+see('a_frozen_set')
