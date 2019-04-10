@@ -14,20 +14,40 @@ class Table(list):
   def __init__(self, *headings, **vargs):
     global log
 
-    keys = set(vargs.keys()) - set(['centered'])
-    assert not keys, 'Invalid keywords: {keys}'.format(keys=', '.join(keys))
-
     if 'log' not in globals():
       log = logging.getLogger()
+
+    keys = set(vargs.keys()) - set(['centered'])
+    assert not keys, 'Invalid keywords: {keys}'.format(keys=', '.join(keys))
 
     super(Table, self).__init__()
     self.headings = [self.Row(*headings)] if headings else None
 
     self.centered = vargs.get('centered', False)
 
+    self.widths = []
+    self.isNumerics = []
+
+  @classmethod
+  def isNumeric(cls, value):
+    try:
+      num = float(value)
+      return True
+    except:
+      return False
+    
   def append(self, *cols):
     super(Table, self).append(self.Row(*map(str, cols)))
     log.debug('There are now {rows} rows'.format(rows=len(self)))
+   
+    # maintain the maximum widths of columns and remember if a column is completely numeric or not
+    for (col_num, col) in enumerate(self[-1].cols):
+      if col_num >= len(self.widths):
+        self.widths.append(len(col))
+        self.isNumerics.append(self.isNumeric(col))
+      else:
+        self.widths[col_num] = max(self.widths[col_num], len(col))
+        self.isNumerics[col_num] = self.isNumerics[col_num] and self.isNumeric(col)
 
   @staticmethod
   def sorter(col):
@@ -49,42 +69,17 @@ class Table(list):
     return self.format((self.headings if self.headings else []) + self)
 
   def format(self, rows):
-    # figure width and `numeracy` of columns
-    widths = []
-    isNumerics = []
-    for (row_num, row) in enumerate(rows):
-      for (col_num, col) in enumerate(row.cols):
-        if ((not self.headings) or (row_num > 0)) and (len(self) > 0):
-          try:
-            num = float(col)
-            isNumeric = True
-          except:
-            isNumeric = False
-        else:
-          """
-          if we're processing the heading row, we'll pretend the column is numeric since it shouldn't decide contribute
-          to the decision of whether to left or right-justify the column
-          """
-          isNumeric = True
-
-        if col_num >= len(widths):
-          widths.append(len(col))
-          isNumerics.append(isNumeric)
-        else:
-          widths[col_num] = max(widths[col_num], len(col))
-          isNumerics[col_num] = isNumerics[col_num] and isNumeric
-
-    log.debug('widths: {widths}, isNumerics: {isNumerics}'.format(**locals()))
+    log.debug('widths: {self.widths}, isNumerics: {self.isNumerics}'.format(**locals()))
 
     ret = []
     format_string = ' '.join(['{{:{direction}{width}}}'.format(
-      direction='>' if isNumerics[col_num] else '<',
-      width=widths[col_num],
-    ) for col_num in range(len(widths))])
+      direction='>' if self.isNumerics[col_num] else '<',
+      width=self.widths[col_num],
+    ) for col_num in range(len(self.widths))])
 
     for (row_num, row) in enumerate(rows):
       log.debug('Rendering row {row_num}: {row.cols}'.format(**locals()))
-      cols = row.cols + tuple([''] * (len(widths) - len(row.cols)))
+      cols = row.cols + tuple([''] * (len(self.widths) - len(row.cols)))
       ret.append((self.regexp.sub('{:^' if self.centered else '{:<', format_string) if self.headings and row_num == 0 else format_string).format(*cols))
 
     return '\n'.join(ret)
@@ -115,3 +110,6 @@ if __name__ == '__main__':
   table.append('easy', 'as', 'pi', math.pi)
   table.append('single column')
   print str(table)
+
+  empty = Table()
+  print str(empty)
