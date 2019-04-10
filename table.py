@@ -26,7 +26,7 @@ class Table(list):
     self.centered = vargs.get('centered', False)
 
   def append(self, *cols):
-    super(Table, self).append(self.Row(*(str(col) for col in cols)))
+    super(Table, self).append(self.Row(*map(str, cols)))
     log.debug('There are now {rows} rows'.format(rows=len(self)))
 
   @staticmethod
