@@ -19,7 +19,7 @@ def load(stream):
   else:
     log.info('Parsed entire stream')
     if type(ret) in [list, dict]:
-      log.info('There are {count} elements'.format(**locals()))
+      log.info('There are {count} elements'.format(count=len(ret)))
     log.debug('Loaded {ret}'.format(**locals()))
     return ret
 
@@ -48,7 +48,7 @@ def load(stream):
   return ret
 
 def defaultWriter(root):
-  print json.dumps(root)
+  print json.dumps(root, indent=2, sort_keys=True)
 
 def linearWriter(root):
   if isinstance(root, list):
@@ -64,6 +64,29 @@ def flatWriter(root, path=[]):
       flatWriter(root[key], path + [str(key)])
   else:
     print '/{path} {root}'.format(path='/'.join(path), root=root)
+
+def findpath(root, path_pattern, path=[]):
+  ret = []
+
+  log.debug('Entering ({root}, {pattern}, {path})'.format(pattern=path_pattern.pattern, **locals()))
+
+  curr = '/' + ('/'.join(path))
+  if path_pattern.search(curr):
+    ret.append(root)
+
+  if type(root) in [list, dict]:
+    for key in range(len(root)) if isinstance(root, list) else root.keys():
+      ret += findpath(root[key], path_pattern, path + [str(key)])
+
+  if not path:
+    if len(ret) == 0:
+      ret = None
+    elif len(ret) == 1:
+      ret = ret[0]
+
+  log.debug('Leaving ({root}, {pattern}, {path}) => {ret}'.format(pattern=path_pattern.pattern, **locals()))
+
+  return ret
 
 parser = argparse.ArgumentParser(description='JSON tool')
 group = parser.add_mutually_exclusive_group()
@@ -101,5 +124,8 @@ else:
   if sys.stdin.isatty():
     parser.error('stdin must be directed if --file is not specified')
   root = load(sys.stdin)
+
+if args.path:
+  root = findpath(root, re.compile((('^' if args.path.startswith('/') else '/') + args.path + '$').replace('/*/', '/[^/]+/')))
 
 writer(root)
