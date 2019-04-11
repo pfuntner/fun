@@ -8,6 +8,10 @@ import argparse
 
 def load(stream):
   data = stream.read()
+
+  if args.yaml:
+    return yaml.load(data)
+
   try:
     ret = json.loads(data)
   except Exception as e:
@@ -62,16 +66,21 @@ def flatWriter(root, path=[]):
     print '/{path} {root}'.format(path='/'.join(path), root=root)
 
 parser = argparse.ArgumentParser(description='JSON tool')
-
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-f', '--flatten', dest='flatten', action='store_true', help='Flatten elements')
 group.add_argument('-l', '--linear', dest='linear', action='store_true', help='Print elements linearly')
 
+parser.add_argument('-y', '--yaml', dest='yaml', action='store_true', help='Read input yaml file')
 parser.add_argument('-F', '--file', dest='file', help='Input file')
 parser.add_argument('-v', '--verbose', dest='verbose', action='count', help='Enable more debugging')
 
 parser.add_argument('path', nargs='?', help='Path to desired object(s)')
 args = parser.parse_args()
+
+yaml = None
+if args.yaml:
+  # let's import yaml module only when the option is specified, in case the module is not installed
+  yaml = __import__('yaml')
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
 log = logging.getLogger()
