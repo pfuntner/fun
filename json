@@ -6,6 +6,35 @@ import json
 import logging
 import argparse
 
+class Filter(object):
+  regexp = re.compile('^([^=]+)(?:=(.*))?$')
+
+  def __init__(self, filter):
+    match = self.regexp.search(filter)
+    log.debug('match: {groups}'.format(groups=match.groups() if match else None))
+    valid = False
+    if match:
+      valid = True
+      try:
+        self.name = re.compile(match.group(1))
+        log.debug('name pattern: {pattern}'.format(pattern=self.name.pattern))
+      except Exception as e:
+        sys.stderr.write('{pattern!r} is an invalid regular expression'.format(pattern=match.group(1)))
+        valid = False
+
+      if match.group(2):
+        try:
+          self.value = re.compile(match.group(2))
+          log.debug('value pattern: {pattern}'.format(pattern=self.value.pattern))
+        except Exception as e:
+          sys.stderr.write('{pattern!r} is an invalid regular expression'.format(pattern=match.group(2)))
+          valid = False
+      else:
+        self.value = None
+
+    if not valid:
+      parser.error('Filter {filter!r} is invalid'.format(**locals()))
+    
 def load(stream):
   data = stream.read()
 
@@ -88,6 +117,72 @@ def findpath(root, path_pattern, path=[]):
 
   return ret
 
+def applyFilters(root):
+  log.debug('applying filters to {root}'.format(**locals()))
+  if isinstance(root, list):
+    key = 0
+    while key < len(root):
+      ret = applyFilters(root[key])
+      if ret:
+        root[key] = ret
+        key += 1
+      else:
+        root.pop(key)
+  elif isinstance(root, dict):
+    keys = root.keys()
+    for key in keys:
+      ret = applyFilters(root[key])
+      if ret:
+        root[key] = ret
+      else:
+        del root[key]
+
+    for filter in includes:
+      if filter.value is None:
+        if not any([filter.name.search(key) for key in root.keys()]):
+          root = None
+          break
+      else:
+        found = False
+        for (key, value) in root.items():
+          if type(value) not in [dict, list]:
+            value = str(value)
+            log.debug('Testing {key}={value!r} against key pattern {key_pat!r} and value pattern {value_pat!r}'.format(
+              key_pat=filter.name.pattern,
+              value_pat=filter.value.pattern,
+              **locals()
+            ))
+            if filter.name.search(key) and filter.value.search(value):
+              log.debug('{key}={value!r} matches the include filter'.format(**locals()))
+              found = True
+              break
+        if not found:
+          log.debug('Exclusion: {root} does not match the include filter'.format(**locals()))
+          root = None
+          break
+
+    for filter in excludes:
+      if filter.value is None:
+        if any([filter.name.search(key) for key in root.keys()]):
+          root = None
+          break
+      else:
+        for (key, value) in root.items():
+          if type(value) not in [dict, list]:
+            value = str(value)
+            if filter.name.search(key) and filter.value.search(value):
+              log.debug('Exclusion: {key}={value!r} matches the exclude filter'.format(**locals()))
+              root = None
+              break
+        if root is None:
+          break
+    
+  if not root:
+    root = None
+
+  log.debug('after applying filters: {root}'.format(**locals()))
+  return root
+
 parser = argparse.ArgumentParser(description='JSON tool')
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-f', '--flatten', dest='flatten', action='store_true', help='Flatten elements')
@@ -95,6 +190,8 @@ group.add_argument('-l', '--linear', dest='linear', action='store_true', help='P
 
 parser.add_argument('-y', '--yaml', dest='yaml', action='store_true', help='Read input yaml file')
 parser.add_argument('-F', '--file', dest='file', help='Input file')
+parser.add_argument('-i', '--include', dest='includes', action='append', help='Specify required attributes')
+parser.add_argument('-x', '--exclude', dest='excludes', action='append', help='Specify unwanted attributes')
 parser.add_argument('-v', '--verbose', dest='verbose', action='count', help='Enable more debugging')
 
 parser.add_argument('path', nargs='?', help='Path to desired object(s)')
@@ -127,5 +224,9 @@ else:
 
 if args.path:
   root = findpath(root, re.compile((('^' if args.path.startswith('/') else '/') + args.path + '$').replace('/*/', '/[^/]+/')))
+
+includes = [Filter(filter) for filter in (args.includes or [])]
+excludes = [Filter(filter) for filter in (args.excludes or [])]
+root = applyFilters(root)
 
 writer(root)
