@@ -89,6 +89,8 @@ def linearWriter(root):
 
 def flatWriter(root, path=[]):
   if type(root) in [list, dict]:
+    if args.all:
+      print '/{path}{final}'.format(path='/'.join(path), final='/' if path else '')
     for key in range(len(root)) if isinstance(root, list) else root.keys():
       flatWriter(root[key], path + [str(key)])
   else:
@@ -189,6 +191,7 @@ group.add_argument('-f', '--flatten', dest='flatten', action='store_true', help=
 group.add_argument('-l', '--linear', dest='linear', action='store_true', help='Print elements linearly')
 
 parser.add_argument('-y', '--yaml', dest='yaml', action='store_true', help='Read input yaml file')
+parser.add_argument('-a', '--all', dest='all', action='store_true', help='Show "directories" of the JSON')
 parser.add_argument('-F', '--file', dest='file', help='Input file')
 parser.add_argument('-i', '--include', dest='includes', action='append', help='Specify required attributes')
 parser.add_argument('-x', '--exclude', dest='excludes', action='append', help='Specify unwanted attributes')
