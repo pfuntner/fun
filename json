@@ -89,6 +89,8 @@ def linearWriter(root):
 
 def flatWriter(root, path=[]):
   if type(root) in [list, dict]:
+    if args.all:
+      print '/{path}{final}'.format(path='/'.join(path), final='/' if path else '')
     for key in range(len(root)) if isinstance(root, list) else root.keys():
       flatWriter(root[key], path + [str(key)])
   else:
@@ -117,12 +119,12 @@ def findpath(root, path_pattern, path=[]):
 
   return ret
 
-def applyFilters(root):
+def applyFilters(root, from_list=False):
   log.debug('applying filters to {root}'.format(**locals()))
   if isinstance(root, list):
     key = 0
     while key < len(root):
-      ret = applyFilters(root[key])
+      ret = applyFilters(root[key], from_list=True)
       if ret:
         root[key] = ret
         key += 1
@@ -137,45 +139,52 @@ def applyFilters(root):
       else:
         del root[key]
 
-    for filter in includes:
-      if filter.value is None:
-        if not any([filter.name.search(key) for key in root.keys()]):
-          root = None
-          break
-      else:
-        found = False
-        for (key, value) in root.items():
-          if type(value) not in [dict, list]:
-            value = str(value)
-            log.debug('Testing {key}={value!r} against key pattern {key_pat!r} and value pattern {value_pat!r}'.format(
-              key_pat=filter.name.pattern,
-              value_pat=filter.value.pattern,
-              **locals()
-            ))
-            if filter.name.search(key) and filter.value.search(value):
-              log.debug('{key}={value!r} matches the include filter'.format(**locals()))
-              found = True
-              break
-        if not found:
-          log.debug('Exclusion: {root} does not match the include filter'.format(**locals()))
-          root = None
-          break
+    if not any([type(value) in [list,dict] for value in root.values()]):
+      """
+      We will only apply the filters if there are no lists or dicts in the root.  If there are such objects,
+      they must have alerady passed the filters and their parents should be pass so they children are visible.
+      """
+      for filter in includes:
+        if filter.value is None:
+          if not any([filter.name.search(key) for key in root.keys()]):
+            root = None
+            break
+        else:
+          found = False
+          for (key, value) in root.items():
+            if type(value) not in [dict, list]:
+              value = str(value)
+              log.debug('Testing {key}={value!r} against key pattern {key_pat!r} and value pattern {value_pat!r}'.format(
+                key_pat=filter.name.pattern,
+                value_pat=filter.value.pattern,
+                **locals()
+              ))
+              if filter.name.search(key) and filter.value.search(value):
+                log.debug('{key}={value!r} matches the include filter'.format(**locals()))
+                found = True
+                break
+          if not found:
+            log.debug('Exclusion: {root} does not match the include filter'.format(**locals()))
+            root = None
+            break
 
-    for filter in excludes:
-      if filter.value is None:
-        if any([filter.name.search(key) for key in root.keys()]):
-          root = None
-          break
-      else:
-        for (key, value) in root.items():
-          if type(value) not in [dict, list]:
-            value = str(value)
-            if filter.name.search(key) and filter.value.search(value):
-              log.debug('Exclusion: {key}={value!r} matches the exclude filter'.format(**locals()))
-              root = None
-              break
-        if root is None:
-          break
+      for filter in excludes:
+        if filter.value is None:
+          if any([filter.name.search(key) for key in root.keys()]):
+            root = None
+            break
+        else:
+          for (key, value) in root.items():
+            if type(value) not in [dict, list]:
+              value = str(value)
+              if filter.name.search(key) and filter.value.search(value):
+                log.debug('Exclusion: {key}={value!r} matches the exclude filter'.format(**locals()))
+                root = None
+                break
+          if root is None:
+            break
+  elif from_list:
+    root=None
     
   if not root:
     root = None
@@ -189,6 +198,8 @@ group.add_argument('-f', '--flatten', dest='flatten', action='store_true', help=
 group.add_argument('-l', '--linear', dest='linear', action='store_true', help='Print elements linearly')
 
 parser.add_argument('-y', '--yaml', dest='yaml', action='store_true', help='Read input yaml file')
+parser.add_argument('-a', '--all', dest='all', action='store_true',
+                    help='Show "directories" of the JSON with --flatten')
 parser.add_argument('-F', '--file', dest='file', help='Input file')
 parser.add_argument('-i', '--include', dest='includes', action='append', help='Specify required attributes')
 parser.add_argument('-x', '--exclude', dest='excludes', action='append', help='Specify unwanted attributes')
