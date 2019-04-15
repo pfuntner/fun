@@ -1,0 +1,46 @@
+#! /usr/bin/env python
+
+import os
+import logging
+import argparse
+import datetime
+import subprocess
+
+metas = '"$`'
+
+def protect(*args):
+  ret = []
+  for arg in args:
+    ret.append(
+      '"' + 
+      ''.join(
+               [
+                 '{escape}{c}'.format(escape='\\' if c in metas else '', c=c) for c in arg
+               ]
+      ) +
+      '"')
+  return ret
+
+parser = argparse.ArgumentParser(description='Python implementation of time utility')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+parser.add_argument('cmd', help='Command to execute')
+parser.add_argument('args', metavar='arg', nargs='*', help='Command arguments')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+log.debug('args: {args}'.format(**locals()))
+
+start = datetime.datetime.now()
+print 'Started {start!s}'.format(**locals())
+p = subprocess.Popen(' '.join([args.cmd] + protect(*args.args)), shell=True)
+rc = p.wait()
+stop = datetime.datetime.now()
+print 'Stopped {stop!s}'.format(**locals())
+
+times = os.times()
+print 'real\t{elapsed!s}'.format(elapsed=stop-start)
+print 'user\t{elapsed!s}'.format(elapsed=datetime.timedelta(seconds=times[2]))
+print 'sys\t{elapsed!s}'.format(elapsed=datetime.timedelta(seconds=times[3]))
