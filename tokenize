@@ -1,0 +1,52 @@
+#! /usr/bin/env python
+
+import re
+import sys
+import json
+
+class Hit(object):
+  def __init__(self, s, start):
+    self.text = s
+    self.start = start
+    self.stop = start+1
+
+  def add(self, c):
+    self.text += c
+    self.stop += 1
+
+  def __str__(self):
+    return json.dumps({
+     'text': self.text,
+     'start': self.start,
+     'stop': self.stop,
+    })
+
+word_regexp = re.compile('^\w$')
+
+def tokenize(s):
+  tokens = []
+  in_word = False
+  chars = [c for c in s]
+  for (pos, c) in enumerate(chars):
+    if word_regexp.search(c):
+      if in_word:
+        tokens[-1].add(c)
+      else:
+        tokens.append(Hit(c, pos))
+        in_word = True
+    else:
+      if in_word:
+        if (c in '\'-') and word_regexp.search(''.join(chars[pos+1:pos+2])):
+          tokens[-1].add(c)
+        else:
+          in_word = False
+  
+  return tokens
+
+while True:
+  sys.stdout.write('> ')
+  s = sys.stdin.readline()
+  if s:
+    print [str(token) for token in tokenize(s)]
+  else:
+    break
