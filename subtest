@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+
+import re
+import sys
+
+count = 0
+
+def rep(match):
+  global count
+  ret = '{group1}text{count}{group2}'.format(group1=match.group(1), count=count + 1, group2=match.group(2))
+  count = (count + 1) % 100
+  return ret
+
+regexp = re.compile('(\s|^)text(\s|$)')
+while True:
+  sys.stdout.write('> ')
+  line = sys.stdin.readline()
+  if line:
+    line = regexp.sub(rep, line)
+    sys.stdout.write(line)
+  else:
+    break
