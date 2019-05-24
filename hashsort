@@ -1,0 +1,44 @@
+#! /usr/bin/env python
+
+import re
+import sys
+import logging
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+parser.add_argument('args', metavar='arg', nargs='*', help='Arguments')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+def hashsort(*args):
+  """
+  Hash a list of strings that can be used as the key for the sort()/sorted() methods.
+
+  For example, we want to turn ["abc1xyz", "123foo456"] to ["abc", 1, "xyz", 123, "foo", 456]
+
+  :param args: A list of strings
+  :return: A list of strings and/or integers
+  """
+  ret = []
+  regexp = re.compile('(\d+)')
+  for arg in args:
+    log.debug('Processing {arg!r}'.format(**locals()))
+    pos = 0
+    for hit in regexp.finditer(arg):
+      # capture string that appears before this number
+      if hit.start(1) > pos:
+        ret.append(arg[pos:hit.start(1)])
+      # capture the number
+      ret.append(int(hit.group(1)))
+      pos = hit.end(1)
+
+    # capture the string the follows that LAST number - this could copy the entire string if there are NO numbers
+    if pos+1 < len(arg):
+      ret.append(arg[pos:])
+  return ret
+
+print hashsort(*args.args)
