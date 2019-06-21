@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+
+import os
+import gc
+import time
+import logging
+import tempfile
+import argparse
+
+def work():
+  global name
+  file = tempfile.NamedTemporaryFile()
+  name = file.name
+  log.info('created {name!r}'.format(**globals()))
+  time.sleep(5)
+
+name = None
+
+parser = argparse.ArgumentParser(description='temptest')
+parser.add_argument('-c', '-g', '--collect-garbage', dest='collect_garbage', action='store_true', help='Perform garbage collection')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+log.info('Garbage collection: {}'.format('enabled' if gc.isenabled() else 'not enabled'))
+
+log.info('calling work()')
+work()
+log.info('back from work()')
+
+if args.collect_garbage:
+  log.info('Performing garbage collection')
+  ret = gc.collect()
+  log.info('Garbage collection returned {ret!r}'.format(**locals()))
+
+time.sleep(5)
+log.info('file variable in scope: {in_scope}'.format(in_scope='file' in locals()))
+log.info('{name!r} exists: {exists}'.format(exists=os.path.exists(name), **locals()))
