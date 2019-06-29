@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+import logging
+import argparse
+
+parser = argparse.ArgumentParser(description='playing with file arguments')
+parser.add_argument('--writable', type=argparse.FileType('w'), nargs='?', help='Writable file')
+parser.add_argument('--readable', type=argparse.FileType('r'), nargs='?', help='Readable file')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+log.debug('args: {args}'.format(**locals()))
