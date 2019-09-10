@@ -56,6 +56,9 @@ Example:
   
 """
 
+def mountpoint_dev(host, path):
+  return host.mount_point(path).device if host.mount_point(path).exists else None
+
 def test_passwd_file(host):
     passwd = host.file("/etc/passwd")
     assert passwd.contains("root")
@@ -77,6 +80,9 @@ def test_nginx_is_installed(host):
     print '/dev/null owner: {}'.format(hosts.user)
     print '/dev/null uid: {}'.format(hosts.uid)
     print '/dev/null content: {!r}'.format(hosts.content)
+
+    print 'mount_point("/"): {!r}'.format(mountpoint_dev(host, "/"))
+    print 'mount_point("/etc"): {!r}'.format(mountpoint_dev(host, "/etc"))
 
     nginx = host.package("nginx")
     assert nginx.is_installed

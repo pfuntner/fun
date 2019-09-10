@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+
+import time
+import curses
+import logging
+import argparse
+
+parser = argparse.ArgumentParser(description='Fun with curses')
+parser.add_argument('-s', '--sleep', type=float, default=5, help='Sleep before exiting')
+parser.add_argument('-v', '--verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+stdscr = curses.initscr()
+curses.noecho()
+curses.cbreak()
+
+####################################################################
+pad = curses.newpad(100, 100)
+# These loops fill the pad with letters
+for y in range(0, 100):
+    for x in range(0, 100):
+        try:
+            pad.addch(y,x, ord('a') + (x*x+y*y) % 26)
+            # pad.addch('z')
+        except curses.error:
+            pass
+
+#  Displays a section of the pad in the middle of the screen
+pad.refresh(0,0, 5,5, 20,75)
+####################################################################
+
+time.sleep(args.sleep)
+
+curses.nocbreak()
+stdscr.keypad(0)
+curses.echo()
+curses.endwin()
