@@ -1,0 +1,102 @@
+#! /usr/bin/env python
+
+import os
+import sys
+import logging
+import argparse
+import subprocess
+
+def see(name):
+  assert isinstance(name, basestring)
+  try:
+    value = repr(eval(name))
+  except Exception as e:
+    value = 'evaluation error: ' + str(e)
+
+  log.info('{name}: {value}'.format(**locals()))
+
+parser = argparse.ArgumentParser(description=sys.argv[0])
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+"""
+Change title of Cygwin "minty" window
+
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ echo -ne "\e]0;MYTITLE\a"
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ echo -ne "\e]0;$(hostname)\a"
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ ps
+      PID    PPID    PGID     WINPID   TTY         UID    STIME COMMAND
+     1533    1532    1533      16564  pty1    12704957 07:09:29 /usr/bin/bash
+     1532       1    1532       9640  ?       12704957 07:09:29 /usr/bin/mintty
+     1507       1    1507       5732  ?       12704957 07:09:18 /usr/bin/mintty
+     1508    1507    1508      12840  pty0    12704957 07:09:19 /usr/bin/bash
+     1572    1508    1572       6504  pty0    12704957 07:12:45 /usr/bin/ps
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ ps -o pid,cmd
+ps: unknown option -- o
+Try `ps --help' for more information.
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ uname -a
+CYGWIN_NT-10.0 JPFUNTNE-GCEYJ 3.0.7(0.338/5/3) 2019-04-30 18:08 x86_64 Cygwin
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ uname -s
+CYGWIN_NT-10.0
+[jpfuntne@JPFUNTNE-GCEYJ ~]$ peval
+sysusage: peval [-h] [-i IMPORTS] [-v] [expr [expr ...]]
+peval: error: If no expressions are on the command line, they must be redirected to stdin
+te[jpfuntne@JPFUNTNE-GCEYJ ~]$ python
+Python 2.7.16 (default, Mar 20 2019, 12:15:19)
+[GCC 7.4.0] on cygwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import system
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: No module named system
+>>> import sys
+>>> help(sys)
+
+>>> sys.platform
+'cygwin'
+>>>
+
+"""
+
+is_mintty = False
+see('sys.platform')
+if 'win' in sys.platform.lower():
+  try:
+    p = subprocess.Popen(['ps'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  except Exception as e:
+    parser.error('Error executing `ps`: {e!s}'.format(**locals()))
+  (stdout, stderr) = p.communicate()
+  rc = p.wait()
+  log.info('ps: {rc}, {stdout!r}, {stderr!r}'.format(**locals()))
+  lines = stdout.splitlines()
+  see('lines')
+  if lines:
+    headings = lines[0].split()
+    see('headings')
+    processes = {}
+    for line in lines[1:]:
+      tokens = line.split()
+      see('tokens')
+      pid = tokens[0]
+      assert len(tokens) <= len(headings)
+      see('pid')
+      processes[pid] = {}
+      for (pos, heading) in enumerate(headings):
+        processes[pid][heading] = tokens[pos]
+    see('processes')
+    process = processes.get(str(os.getpid()))
+    while True:
+      see('process')
+      if process:
+        if process['COMMAND'] == '/usr/bin/mintty':
+          is_mintty = True
+          break
+        else:
+          process = processes.get(process['PPID'])
+      else:
+        break
+see('is_mintty')
