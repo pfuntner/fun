@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
    I've always been a fan of using the getopt module but am sometimes encouraged by folks to use argparse.  It does seem to have

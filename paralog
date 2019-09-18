@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
 Example of using paramiko to get stdout, stderr, and exit value from a remote command.  This depends on the ssh key and does not require password.  It can probably be extended to accept a password instead.

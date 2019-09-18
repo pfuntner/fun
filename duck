@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
    From https://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons

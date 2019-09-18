@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
   Exploring the difference between `return None` and no `return` at all.
