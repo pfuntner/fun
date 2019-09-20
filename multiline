@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
 I seem to have a misconception about how the '^' and '$' metacharacters work with re.MULTILINE so I'm going to explore that.

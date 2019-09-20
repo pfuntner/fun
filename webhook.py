@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
 Borrowed from https://gist.github.com/bradmontgomery/2219997

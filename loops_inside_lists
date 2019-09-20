@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
    some of the mobility code bugs me when they use list comprehension when they really just want to do a loop:

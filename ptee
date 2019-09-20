@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
    This will simulate doing a "tee": having stdout directly to the console as well as saving it in a list for later processing.

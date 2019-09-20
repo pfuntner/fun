@@ -1,4 +1,4 @@
-#! /usr/include/env python
+#! /usr/include/env python2
 
 import argparse
 
