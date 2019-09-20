@@ -66,30 +66,35 @@ see('clear')
 
 write(clear)
 
-goto(0, 1)
-write(horizontal * (cols-2))
+# goto(0, 1)
+# write(horizontal * (cols-2))
+# 
+# for row in range(1,rows-2):
+#   goto(row, 0)
+#   write(vertical)
+#   goto(row, cols-1)
+#   write(vertical)
+# 
+# goto(rows-2, 1)
+# write(horizontal * (cols-2))
+# 
+# goto(0, 0)
+# write('0,0')
+# 
+# writeto(rows-2, cols, '{rows},{cols}'.format(**locals()))
+# 
+# row = 0
+# col = 0
+# step = (cols*1.0)/rows
+# while row < rows-1:
+#   goto(row, col)
+#   # time.sleep(.1)
+#   row += 1
+#   col += step
+# 
 
-for row in range(1,rows-2):
-  goto(row, 0)
-  write(vertical)
-  goto(row, cols-1)
-  write(vertical)
+for num in range(25):
+  goto(num, num)
+  write('{num},{num}'.format(**locals()))
 
-goto(rows-2, 1)
-write(horizontal * (cols-2))
-
-goto(0, 0)
-write('0,0')
-
-writeto(rows-2, cols, '{rows},{cols}'.format(**locals()))
-
-row = 0
-col = 0
-step = (cols*1.0)/rows
-while row < rows-1:
-  goto(row, col)
-  # time.sleep(.1)
-  row += 1
-  col += step
-
-goto(rows-1, 0)
+goto(rows-2, 0)
