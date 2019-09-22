@@ -1,0 +1,50 @@
+#! /usr/bin/env python2
+
+import sys
+import logging
+import argparse
+import xml.etree.ElementTree as ET
+
+def visit(root, stack=[]):
+  indent = '  ' * len(stack)
+  if args.flatten:
+    line = '{stack}{join}{tag}'.format(
+      stack='/'.join(stack),
+      join='/' if stack else '',
+      tag=root.tag,
+    )
+  else:
+    line = '{indent}<{root.tag}>'.format(**locals())
+
+  print '{line} {root.attrib} {root.text!r}'.format(**locals())
+
+  for child in root:
+    visit(child, stack + [root.tag])
+
+def supply_entities(s):
+  for (entity_name, entity_value) in ENTITIES:
+    s = s.replace('&{entity_name};'.format(**locals()), entity_value)
+  return s
+
+parser = argparse.ArgumentParser(description='Parse a true XML document')
+parser.add_argument('--flatten', action='store_true', help='Flatten document')
+parser.add_argument('-v', '--verbose', action='store_true', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+
+if sys.stdin.isatty():
+  parser.error('stdin must be redirected')
+
+ENTITIES = (
+  ('nbsp', ' '),
+  ('lt', '<'),
+  ('gt', '>'),
+  ('amper', '&'),
+)
+
+data = supply_entities(sys.stdin.read())
+root = ET.fromstring(data)
+visit(root)
