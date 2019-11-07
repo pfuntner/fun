@@ -1,0 +1,18 @@
+#! /usr/bin/env python
+
+import re
+
+lines = [
+  'GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap biosdevname=0 net.ifnames=0 rhgb quiet net.ifnames=0"',
+  'GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap biosdevname=0 net.ifnames=0 rhgb quiet net.ifnames=0 audit=true"',
+  'GRUB_CMDLINE_LINUX="audit=true crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap biosdevname=0 net.ifnames=0 rhgb quiet net.ifnames=0"',
+  'GRUB_CMDLINE_LINUX="audit=true crashkernel=auto rd.lvm.lv=centos/root audit=true rd.lvm.lv=centos/swap biosdevname=0 net.ifnames=0 rhgb quiet net.ifnames=0"',
+]
+
+regexp = re.compile('^(GRUB_CMDLINE_LINUX=(?!.*audit)\"[^\"]+)(\".*)')
+regexp = re.compile('^(GRUB_CMDLINE_LINUX=(?!.*audit)"[^"]+)(".*)')
+
+print 'Pattern: {!r}'.format(regexp.pattern)
+for line in lines:
+  match = regexp.search(line)
+  print '{!r} {}'.format(line, match.groups() if match else None)

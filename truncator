@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+import subprocess
+
+f = open('truncator.txt', 'w', buffering=0)
+f.write('this is a test\n')
+subprocess.Popen(['cat', 'truncator.txt']).wait()
+
+f.truncate(0)
+f.write('this is not a test\n')
+subprocess.Popen(['cat', 'truncator.txt']).wait()
+
+subprocess.Popen(['rm', '-vf', 'truncator.txt']).wait()
