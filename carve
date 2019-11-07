@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+import re
+
+lines = [
+  '"foo abc bar"',
+  '"foo bar"',
+  '"abc bar"',
+  '"foo abc"',
+]
+
+regexp = re.compile('^("[^"]*(?=abc))(abc)?(.*")$')
+regexp  = re.compile('^("[^"]*(?!abc))(abc){0,1}(.*".*)$')
+print 'Pattern: {}'.format(regexp.pattern)
+for line in lines:
+  match = regexp.search(line)
+  print line, match.groups() if match else None
