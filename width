@@ -1,0 +1,9 @@
+#! /usr/bin/env python
+
+"""
+from https://stackoverflow.com/questions/566746/how-to-get-linux-console-window-width-in-python
+"""
+
+# h, w, hp, wp = 
+print struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+
