@@ -1,0 +1,8 @@
+#! /usr/bin/env python3
+
+def fun():
+  x_local = 'LOCAL'
+  print(f'{x_global} {x_local}')
+
+x_global = 'GLOBAL'
+fun()
