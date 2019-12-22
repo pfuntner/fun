@@ -3,6 +3,24 @@
 import logging
 import argparse
 
+"""
+# expose this section for a nice way to run an external command
+
+import subprocess
+
+def run(cmd):
+  if isinstance(cmd, str):
+    cmd = cmd.split()
+  log.info('Executing {cmd}'.format(**locals()))
+  p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
+  # stdout = stdout.decode('utf-8')
+  # stderr = stderr.decode('utf-8')
+  rc = p.wait()
+  log.debug('Executed {cmd}: {rc}, {stdout!r}, {stderr!r}'.format(**locals()))
+  return (rc, stdout, stderr)
+"""
+
 parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY)
 parser.add_argument('-v', '--verbose', action='count', help='Enable debugging')
 args = parser.parse_args()
