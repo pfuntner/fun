@@ -31,3 +31,6 @@ except Exception as e:
   print(f'Caught: {e!s}')
 else:
   print(f'encoding: {encoding!r}')
+  print('type: {!r}'.format(type(encoding)))
+
+  print(encoding.decode('utf-8'))
