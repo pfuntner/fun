@@ -1,0 +1,36 @@
+#! /usr/bin/env python3
+
+import sys
+import base64
+
+s = ' '.join(sys.argv[1:])
+print(f's: {s!r}')
+
+try:
+  """
+    This is failing with:
+
+      File "./p3encode", line 9, in <module>
+        enocoding = base64.b64encode(s)
+      File "/usr/lib/python3.6/base64.py", line 58, in b64encode
+        encoded = binascii.b2a_base64(s, newline=False)
+    TypeError: a bytes-like object is required, not 'str'
+  """
+  encoding = base64.b64encode(s)
+except Exception as e:
+  print(f'Caught: {e!s}')
+else:
+  print(f'encoding: {encoding!r}')
+
+try:
+  """
+    This works better
+  """
+  encoding = base64.b64encode(s.encode('utf-8'))
+except Exception as e:
+  print(f'Caught: {e!s}')
+else:
+  print(f'encoding: {encoding!r}')
+  print('type: {!r}'.format(type(encoding)))
+
+  print(encoding.decode('utf-8'))
