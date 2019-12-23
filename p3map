@@ -1,0 +1,11 @@
+#! /usr/bin/env python3
+
+def fun(x):
+  print(f'x={x!r}')
+  return repr(x)
+
+ret = list(map(fun, ['str', u'unicode', 42, 3.14152654, True]))
+print(ret)
+# print('map() returned a {}'.format(type(ret)))
+# for datum in ret:
+#   print('datum is a {}'.format(type(datum)))
