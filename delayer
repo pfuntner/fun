@@ -1,0 +1,15 @@
+#! /usr/bin/env python3
+
+import os
+import sys
+import time
+import random
+
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
+
+for lineno in range(10):
+  line = f'Line {lineno}'
+  for c in line:
+    sys.stdout.write(c.encode('utf-8'))
+    time.sleep(random.random()*1.5)
+  sys.stdout.write('\n'.encode('utf-8'))
