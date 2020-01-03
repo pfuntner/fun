@@ -9,6 +9,8 @@ parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help
 print 'known: {}'.format(known)
 print 'unknown: {}'.format(unknown)
 
+print 'dir: {}'.format(dir(known))
+
 # args = parser.parse_args()
 # 
 # logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
