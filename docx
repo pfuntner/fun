@@ -1,0 +1,32 @@
+#! /usr/bin/env python3
+
+import os
+import sys
+from docx import Document # from python-docx
+
+def process(filename):
+  if os.path.basename(filename)[0:1] == '~':
+    log.info('Skipping {filename!r}'.format(**locals()))
+  else:
+    with open(filename) as stream:
+      try:
+        doc = Document(stream)
+      except Exception as e:
+        log.warning('Could not open {filename!r}: {e!s}'.format(**locals()))
+      else:
+        for paragraph in doc.paragraphs:
+          text = paragraph.text
+          if regexp.search(text):
+            if args.list:
+              print(filename)
+              break
+            else:
+              print('{filename}: {text!r}'.format(**locals()))
+
+assert len(sys.argv) == 2, 'Specify a filename'
+assert os.path.isfile(sys.argv[1]), 'Cannot find {}'.format(sys.arg[1])
+
+print('Python {}'.format(sys.version_info))
+with open(sys.argv[1]) as stream:
+  doc = Document(stream)
+  print('{} paragraphs'.format(len(doc.paragraphs)))
