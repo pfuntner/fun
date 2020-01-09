@@ -19,7 +19,7 @@ def see(expr):
   sys.stderr.write('{expr}: {value!r}\n'.format(**locals()))
 
 parser = argparse.ArgumentParser(description='A sample use of ArgumentParser')
-parser.add_argument('-v', '--verbose', dest='verbose', action='count',  help='Toggle verbose debugging')
+parser.add_argument('-v', '--debug', '--verbose', dest='verbose', action='count',  help='Toggle verbose debugging')
 parser.add_argument('--cfg', dest='cfg', help='Specify configuration filename', required=True)
 
 group = parser.add_mutually_exclusive_group()
@@ -30,6 +30,8 @@ parser.add_argument('pattern', help='Regular expression pattern')
 parser.add_argument('files', metavar='file', nargs='*', help='Files to process')
 
 args = parser.parse_args()
+
+see('args')
 
 # args.verbose is None if not specified - to test toggling, try `(args.verbose or 0) % 2`
 see('args.verbose')
