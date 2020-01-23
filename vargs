@@ -1,9 +1,10 @@
 #! /usr/bin/env python2
 
 def fun(a, b, *values):
-  print 'a: {a}'.format(**locals())
-  print 'b: {b}'.format(**locals())
-  print 'values: {values}'.format(**locals())
-  print 'len(values): {size}'.format(size=len(values))
+  print('a: {a}'.format(**locals()))
+  print('b: {b}'.format(**locals()))
+  print('values: {values}'.format(**locals()))
+  print('type(values): {}'.format(type(values)))
+  print('len(values): {size}'.format(size=len(values)))
 
 fun(1, 2, 3, 4, 5)
