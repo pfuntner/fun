@@ -1,0 +1,14 @@
+#! /usr/bin/env python3
+
+import re
+
+s = """
+this is a test
+CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+this is another test
+"""
+
+regexp = re.compile(r'^CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=(.*)$', flags=re.MULTILINE)
+
+match = regexp.search(s)
+print(match.groups() if match else None)
