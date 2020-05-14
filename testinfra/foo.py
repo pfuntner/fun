@@ -19,3 +19,4 @@ $ pytest -s foo.py --hosts=centos@64.102.179.79 --ssh-identity-file=c:/sto/pfunt
 
 def test_foo(host):
   print('hostname: {}'.format(host.run('hostname')))
+  print(host.package('auditd').is_installed)
