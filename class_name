@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+
+class MyClass(object):
+  def __init__(self):
+     pass
+
+  @classmethod
+  def whoami(cls):
+    return cls.__name__
+
+print(MyClass.whoami())
+print(MyClass().whoami())
