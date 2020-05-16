@@ -9,4 +9,4 @@ class MyClass(object):
     return cls.__name__
 
 print(MyClass.whoami())
-print(MyClass().whoami())
+print(MyClass().__class__.whoami())
