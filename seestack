@@ -10,9 +10,14 @@ def morefun():
   fun()
 
 def fun():
+  traceback.print_stack()
   tb = traceback.extract_stack()
+  print type(tb)
+  print len(tb)
+  print tb
   # print '\n'.join([str(line) for line in tb])
   for line in tb:
+    print type(line)
     # pdb.set_trace()
     print dir(line)
     print str(line)
