@@ -8,19 +8,23 @@ import argparse
 
 import subprocess
 
-def run(cmd):
+def run(cmd, capture=True):
   if isinstance(cmd, str):
     cmd = cmd.split()
   log.info('Executing {cmd}'.format(**locals()))
-  p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
-  # alternately, if trapping is conditional:
-  # if trap:
-  #   stdout = stdout.decode('utf-8')
-  #   stderr = stderr.decode('utf-8')
+  p = subprocess.Popen(cmd, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None)
+  if capture:
+    (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
+    # alternately, if trapping is conditional:
+    # if trap:
+    #   stdout = stdout.decode('utf-8')
+    #   stderr = stderr.decode('utf-8')
+  else:
+    (stdout, stderr) = ('', '')
   rc = p.wait()
   log.debug('Executed {cmd}: {rc}, {stdout!r}, {stderr!r}'.format(**locals()))
   return (rc, stdout, stderr)
+
 """
 
 parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY)
