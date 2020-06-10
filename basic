@@ -24,7 +24,6 @@ def run(cmd, capture=True):
   rc = p.wait()
   log.debug('Executed {cmd}: {rc}, {stdout!r}, {stderr!r}'.format(**locals()))
   return (rc, stdout, stderr)
-
 """
 
 parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY)
