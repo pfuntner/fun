@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import signal
 import logging
 import argparse
 
@@ -34,3 +35,5 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(
 log = logging.getLogger()
 # log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
 log.setLevel(logging.WARNING - (args.verbose or 0)*10)
+
+signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
