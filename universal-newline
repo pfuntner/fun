@@ -1,0 +1,41 @@
+#! /usr/bin/env python3
+
+import sys
+import signal
+import logging
+import argparse
+
+"""
+Testing "universal newline support" in Python 3
+"""
+
+def qtype(obj):
+  if isinstance(obj, str):
+    return 'characters'
+  elif isinstance(obj, int):
+    return 'ints'
+  else:
+    return type(obj)
+
+parser = argparse.ArgumentParser(description=sys.argv[0])
+parser.add_argument('file', help='Path to file to read')
+parser.add_argument('-b', '--binary', action='store_true', help='Read in binary mode')
+parser.add_argument('-v', '--verbose', action='count', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+# log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+log.setLevel(logging.WARNING - (args.verbose or 0)*10)
+
+signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
+
+with open(args.file, 'r' + ('b' if args.binary else '')) as stream:
+  data = stream.read()
+  if data:
+    print('read() returned {size} {data_type}'.format(size=len(data), data_type=qtype(data[0])))
+  else:
+    print('read() returned no data')
+
+  for (pos, c) in enumerate(data):
+    print('{pos:5} {c!r}'.format(pos=pos, c=chr(c) if args.binary else c))
