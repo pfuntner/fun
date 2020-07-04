@@ -31,11 +31,13 @@ if os.path.exists(args.filename):
     while True:
       c = stream.read(1)
       if c:
+        log.info('read: {c!r}'.format(**locals()))
         if args.md5:
           md5.update(c)
+        hex = ord(c)
         if sys.version_info.major == 3:
           c = c.decode('cp437')
-        print('{pos:8} {c!r}'.format(**locals()))
+        print('{pos:8} 0x{hex:02x} {c!r}'.format(**locals()))
         pos += 1
       else:
         break
