@@ -1,0 +1,145 @@
+#! /usr/bin/env python3
+
+import signal
+import logging
+import random
+import argparse
+import datetime
+
+def rand(min, max):
+  """
+  Return a random integer min <= x <= max
+  :param min: The minimum value (inclusive)
+  :param max: The maximum value (inclusive)
+  :return: A random integer greater than or equal to min and less than or equal to max
+  """
+
+  return round(random.uniform(min, max))
+
+def locate_sunday(month, year, occurrence):
+  """
+  Get n-th Sunday of week for a month/year
+  :param month: Month as an integer: 1=January, ..., 12=December
+  :param year: Year (including century) as an integer such as 2020
+  :param occurrence: Which occurence of the weekday: 1: first, 2: second, ... -1: last (could be 4th or 5th)
+  :return: A datetime object representing the desired date
+  """
+
+  log.info(f'Seeking {occurrence}-th Sunday of {month}/{year}')
+
+  if occurrence >= 1:
+    curr = datetime.datetime.strptime(f'{year}/{month}/01 02:00:00', '%Y/%m/%d %H:%M:%S')
+    step = datetime.timedelta(days=1)
+    while occurrence > 0:
+      log.info(f'Examining {curr!s}')
+      if curr.weekday() == 6:
+        if occurrence == 1:
+          break
+        else:
+          occurrence -= 1
+      curr += step
+  elif occurrence == -1:
+    month += 1
+    curr = datetime.datetime.strptime(f'{year}/{month}/01 02:00:00', '%Y/%m/%d %H:%M:%S')
+    step = datetime.timedelta(days=1)
+    while curr.weekday() != 6:
+      curr -= step
+  else:
+    log.error(f'Occurrence of `{occurrence}` is not supported!')
+
+  log.info(f'Desired Sunday is {curr!s}')
+  return curr
+
+def is_in_dst(curr):
+  """
+
+    From https://www.wikiwand.com/en/Standard_time_in_the_United_States
+
+    2007-present: 2nd Sunday March, 1st Sunday November
+    1987-2006:    1st Sunday April, last Sunday October
+    1975:       	Sun February 23 - October 26 (Emergency Daylight Time Act)
+    1974:       	Sun January 6 - October 27 (Emergency Daylight Time Act)
+    1966-1986:    last Sunday April, last Sunday October
+
+  """
+  dst_start = None
+  dst_end = None
+  if curr.year >= 2007:
+    dst_start = locate_sunday(3, curr.year, 2)
+    dst_end = locate_sunday(11, curr.year, 1)
+  elif 1987 <= curr.year <= 2006:
+    dst_start = locate_sunday(4, curr.year, 1)
+    dst_end = locate_sunday(10, curr.year, -1)
+  elif curr.year == 1975:
+    log.debug('Be aware that 1975 had the weird-ass `Emergency Daylight Time Act`')
+    dst_start = datetime.datetime.strptime('1975/02/23 02:00:00', '%Y/%m/%d %H:%M:%S')
+    dst_end = datetime.datetime.strptime('1975/10/26 02:00:00', '%Y/%m/%d %H:%M:%S')
+  elif curr.year == 1974:
+    log.debug('Be aware that 1974 had the weird-ass `Emergency Daylight Time Act`')
+    dst_start = datetime.datetime.strptime('1974/01/06 02:00:00', '%Y/%m/%d %H:%M:%S')
+    dst_end = datetime.datetime.strptime('1974/10/27 02:00:00', '%Y/%m/%d %H:%M:%S')
+  elif 1966 <= curr.year <= 1986:
+    dst_start = locate_sunday(4, curr.year, -1)
+    dst_end = locate_sunday(10, curr.year, -1)
+  else:
+    log.error(f'Do not know when DST starts/ends in {curr.year}')
+    exit(1)
+  log.info(f'In {curr.year}, DST began at {dst_start!s} and ended at {dst_end!s}')
+
+  in_dst = dst_start <= curr < dst_end
+  log.info('{curr!s} is in {zone}'.format(curr=curr, zone='daylight savings time' if in_dst else 'standard time'))
+  return in_dst
+
+def to_gmt(curr):
+  in_dst = is_in_dst(curr)
+
+  if curr < utc:
+    curr += datetime.timedelta(seconds=dst_offset if in_dst else std_offset)
+  else:
+    curr -= datetime.timedelta(seconds=dst_offset if in_dst else std_offset)
+
+  return curr
+
+parser = argparse.ArgumentParser(description='Play with daylight savings time')
+parser.add_argument('-v', '--verbose', action='count', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+# log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
+log.setLevel(logging.WARNING - (args.verbose or 0)*10)
+
+signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
+
+curr = datetime.datetime.now()
+utc = datetime.datetime.utcnow()
+
+diff = curr-utc if curr > utc else utc-curr
+
+in_dst = is_in_dst(curr)
+if in_dst:
+  dst_offset = round(diff.total_seconds())
+  std_offset = dst_offset + 60 * 60
+else:
+  std_offset = round(diff.total_seconds())
+  dst_offset = std_offset - 60 * 60
+
+if in_dst:
+  log.info(f'dst={dst_offset}, std={std_offset}')
+else:
+  log.info(f'std={std_offset}, dst={dst_offset}')
+
+diff = None
+if curr < utc:
+  diff = utc - curr
+  log.info(f'{curr!s} is {diff!s} hours west of UTC')
+else:
+  diff = curr - utc
+  log.info(f'{curr!s} is {diff!s} hours east of UTC')
+
+for iteration in range(10):
+  curr = datetime.datetime(rand(1966, 2030), rand(1, 12), rand(1, 28), rand(0, 23), rand(0, 59), rand(0, 59))
+  curr_with_dow = curr.strftime('%a %Y-%m-%d %H:%M:%S')
+  new = to_gmt(curr)
+  offset = new-curr if new > curr else curr-new
+  print(f'{curr_with_dow} {new!s} {offset!s}')
