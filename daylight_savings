@@ -6,6 +6,8 @@ import random
 import argparse
 import datetime
 
+from BrunoUtils import TimezoneMagic
+
 def rand(min, max):
   """
   Return a random integer min <= x <= max
@@ -16,6 +18,7 @@ def rand(min, max):
 
   return round(random.uniform(min, max))
 
+'''
 def locate_sunday(month, year, occurrence):
   """
   Get n-th Sunday of week for a month/year
@@ -99,6 +102,7 @@ def to_gmt(curr):
     curr -= datetime.timedelta(seconds=dst_offset if in_dst else std_offset)
 
   return curr
+'''
 
 parser = argparse.ArgumentParser(description='Play with daylight savings time')
 parser.add_argument('-v', '--verbose', action='count', help='Enable debugging')
@@ -111,9 +115,10 @@ log.setLevel(logging.WARNING - (args.verbose or 0)*10)
 
 signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
 
+timezone_magic = TimezoneMagic()
 curr = datetime.datetime.now()
-utc = datetime.datetime.utcnow()
 
+'''
 diff = curr-utc if curr > utc else utc-curr
 
 in_dst = is_in_dst(curr)
@@ -136,10 +141,11 @@ if curr < utc:
 else:
   diff = curr - utc
   log.info(f'{curr!s} is {diff!s} hours east of UTC')
+'''
 
 for iteration in range(10):
   curr = datetime.datetime(rand(1966, 2030), rand(1, 12), rand(1, 28), rand(0, 23), rand(0, 59), rand(0, 59))
   curr_with_dow = curr.strftime('%a %Y-%m-%d %H:%M:%S')
-  new = to_gmt(curr)
+  new = timezone_magic.to_gmt(curr)
   offset = new-curr if new > curr else curr-new
   print(f'{curr_with_dow} {new!s} {offset!s}')
