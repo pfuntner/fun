@@ -9,11 +9,18 @@ import argparse
 
 import subprocess
 
-def run(cmd, capture=True):
-  if isinstance(cmd, str):
+def run(cmd, stdin=None, capture=True, shell=False):
+  if shell:
+    if isinstance(cmd, list):
+      cmd = ' '.join(cmd)
+  elif isinstance(cmd, str):
     cmd = cmd.split()
+
   log.info('Executing {cmd}'.format(**locals()))
-  p = subprocess.Popen(cmd, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None)
+  p = subprocess.Popen(cmd, stdin=subprocess.PIPE if stdin else None, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None, shell=shell)
+  if stdin:
+    p.stdin.write(stdin.encode())
+    p.stdin.close()
   if capture:
     (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
     # alternately, if trapping is conditional:
