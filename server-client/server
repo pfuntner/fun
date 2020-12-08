@@ -1,0 +1,27 @@
+#! /usr/bin/env python3
+
+import socket
+import signal
+import logging
+import argparse
+
+parser = argparse.ArgumentParser(description='Server')
+parser.add_argument('port', type=int, help='Server port')
+parser.add_argument('ip', default='', nargs='?', help='Server IP: default: ""')
+parser.add_argument('-v', '--verbose', action='count', help='Enable debugging')
+args = parser.parse_args()
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
+log = logging.getLogger()
+log.setLevel(logging.WARNING - (args.verbose or 0)*10)
+
+signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((args.ip, args.port))
+while True:
+  print('listening...')
+  sock.listen(1)
+  print('accepting...')
+  (client, addr) = sock.accept()
+  print(f'client: {client}, addr: {addr}')
