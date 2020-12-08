@@ -26,4 +26,5 @@ while True:
   log.info('Accepting...')
   (client, addr) = sock.accept()
   log.info('Connected!')
-  log.info(f'Client: {client}, addr: {addr}')
+  log.info(f'Client: {client}')
+  log.info(f'addr: {addr}')
