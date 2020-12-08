@@ -13,15 +13,17 @@ args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
 log = logging.getLogger()
-log.setLevel(logging.WARNING - (args.verbose or 0)*10)
+log.setLevel(logging.INFO - (args.verbose or 0)*10)
 
 signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+log.info(f'Binding to {args.port} at {args.ip!r}...')
 sock.bind((args.ip, args.port))
 while True:
-  print('listening...')
+  log.info('Listening...')
   sock.listen(1)
-  print('accepting...')
+  log.info('Accepting...')
   (client, addr) = sock.accept()
-  print(f'client: {client}, addr: {addr}')
+  log.info('Connected!')
+  log.info(f'Client: {client}, addr: {addr}')

@@ -13,11 +13,12 @@ args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
 log = logging.getLogger()
-# log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
-log.setLevel(logging.WARNING - (args.verbose or 0)*10)
+log.setLevel(logging.INFO - (args.verbose or 0)*10)
 
 signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+log.info(f'Connecting to {args.port} at {args.ip!r}...')
 sock.connect((args.ip, args.port))
+log.info('Connected!')
 sock.close()
