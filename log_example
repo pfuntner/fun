@@ -20,3 +20,5 @@ log.info('This is an informational message')
 log.warn('This is a warning message')
 log.error('This is an error message')
 log.fatal('This is a fatal/critical message')
+
+print('That will do, pig.  That will do.') # prove that we none of the logging methods terminate the process
