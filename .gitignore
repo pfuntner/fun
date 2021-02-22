@@ -3,3 +3,4 @@
 .idea
 table.py
 data3/chars.txt
+__pycache__
