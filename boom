@@ -13,7 +13,11 @@ def boom(depth=0):
     (exc_type, exc_value, exc_traceback) = sys.exc_info()
     # pdb.set_trace()
     stack = traceback.format_tb(exc_traceback)
+    print(stack)
     for curr in stack:
       sys.stdout.write('traceback stack: {curr!r}\n'.format(**locals()))
 
-boom()
+def kaboom():
+  boom()
+
+kaboom()
