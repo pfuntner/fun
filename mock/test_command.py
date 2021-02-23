@@ -13,6 +13,10 @@ def mocked_getpid():
 
 @unittest.mock.patch('command.os')
 @unittest.mock.patch('command.subprocess')
+"""
+  Note that the order of mocks is in reverse order.  The last specified
+  must be the first in the parameter list.
+"""
 def test_command(mock_command_subprocess, mock_command_os):
   mock_command_subprocess.Popen = mocked_Popen
   mock_command_os.getpid = mocked_getpid
