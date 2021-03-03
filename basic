@@ -20,7 +20,7 @@ def run(cmd, stdin=None, capture=True, shell=False):
   p = subprocess.Popen(cmd, stdin=subprocess.PIPE if stdin else None, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None, shell=shell)
   if stdin:
     p.stdin.write(stdin.encode())
-    p.stdin.close()
+    # p.stdin.close() # 2021-03-03: I was getting an error trying to flush a closed stream.  When I got rid of this close(), it worked fine.
   if capture:
     (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
     # alternately, if trapping is conditional:
