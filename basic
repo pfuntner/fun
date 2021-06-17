@@ -17,18 +17,22 @@ def run(cmd, stdin=None, capture=True, shell=False):
     cmd = cmd.split()
 
   log.info('Executing {cmd}'.format(**locals()))
+
+  p = None
   try:
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE if stdin else None, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None, shell=shell)
   except Exception as e:
-    return (-1, '', f'Caught {e!s} running {cmd!r}')
+    (rc, stdout, stderr) = (-1, '', f'Caught {e!s} running {cmd!r}')
 
-  if stdin:
-    p.stdin.write(stdin.encode())
-  if capture:
-    (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
-  else:
-    (stdout, stderr) = ('', '')
-  rc = p.wait()
+  if p:
+    if stdin:
+      p.stdin.write(stdin.encode())
+    if capture:
+      (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
+    else:
+      (stdout, stderr) = ('', '')
+    rc = p.wait()
+
   log.debug('Executed {cmd}: {rc}, {stdout!r}, {stderr!r}'.format(**locals()))
   return (rc, stdout, stderr)
 """
