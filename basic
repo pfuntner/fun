@@ -17,16 +17,15 @@ def run(cmd, stdin=None, capture=True, shell=False):
     cmd = cmd.split()
 
   log.info('Executing {cmd}'.format(**locals()))
-  p = subprocess.Popen(cmd, stdin=subprocess.PIPE if stdin else None, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None, shell=shell)
+  try:
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE if stdin else None, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None, shell=shell)
+  except Exception as e:
+    return (-1, '', f'Caught {e!s} running {cmd!r}')
+
   if stdin:
     p.stdin.write(stdin.encode())
-    # p.stdin.close() # 2021-03-03: I was getting an error trying to flush a closed stream.  When I got rid of this close(), it worked fine.
   if capture:
     (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
-    # alternately, if trapping is conditional:
-    # if trap:
-    #   stdout = stdout.decode('utf-8')
-    #   stderr = stderr.decode('utf-8')
   else:
     (stdout, stderr) = ('', '')
   rc = p.wait()
@@ -40,7 +39,6 @@ args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(msg)s')
 log = logging.getLogger()
-# log.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
 log.setLevel(logging.WARNING - (args.verbose or 0)*10)
 
 signal.signal(signal.SIGPIPE, lambda signum, stack_frame: exit(0))
