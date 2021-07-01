@@ -8,15 +8,11 @@ class Table(object):
     else:
       self.headings = args
 
-    self.p = subprocess.Popen(['column', '-t', '-s\t'], stdin=subprocess.PIPE)
-    self.p.stdin.write(self.encode('\t'.join([str(heading) for heading in self.headings]) + '\n'))
-
-  @classmethod
-  def encode(cls, s):
-    return s if sys.version_info.major == 2 else s.encode()
+    self.p = subprocess.Popen(['column', '-t', '-s\t'], stdin=subprocess.PIPE, text=True)
+    self.p.stdin.write('\t'.join([str(heading) for heading in self.headings]) + '\n')
 
   def add(self, *args):
-    self.p.stdin.write(self.encode('\t'.join([str(arg) for arg in args]) + '\n'))
+    self.p.stdin.write('\t'.join([str(arg) for arg in args]) + '\n')
 
   def close(self):
     self.p.stdin.close()
