@@ -1,0 +1,31 @@
+#! /usr/bin/env python3
+
+import os
+import sys
+import subprocess
+
+class Table(object):
+  def __init__(self, *args):
+    if len(args) == 1 and type(args[0]) in (list, tuple):
+      self.headings = args[0]
+    else:
+      self.headings = args
+
+    self.p = subprocess.Popen(['column', '-t', '-s\t'], stdin=subprocess.PIPE, text=True)
+    self.p.stdin.write('\t'.join([str(heading) for heading in self.headings]) + '\n')
+
+  def add(self, *args):
+    self.p.stdin.write('\t'.join([str(arg) for arg in args]) + '\n')
+
+  def close(self):
+    self.p.stdin.close()
+    self.p.wait()
+
+table = Table('Attribute', 'Value')
+table.add('pid', os.getpid())
+table.add('ppid', os.getppid())
+table.add('pgid', os.getpgid(0))
+table.add('pgrp', os.getpgrp())
+table.add('tcpgrp(stdout)', os.tcgetpgrp(sys.stdout.fileno()))
+table.add('ttyname(stdout)', os.ttyname(sys.stdout.fileno()))
+table.close()
