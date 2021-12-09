@@ -95,7 +95,11 @@ Example:
 #     nginx = host.service("nginx")
 #     assert nginx.is_running
 #     assert nginx.is_enabled
+# 
+# def test_tmp(host):
+#     tmp = host.file('/tmp')
+#     pdb.set_trace()
 
-def test_tmp(host):
-    tmp = host.file('/tmp')
-    pdb.set_trace()
+def test_command(host):
+        command = host.run('uname -a | tr "[A-Z]" "[a-z]"')
+        pdb.set_trace()
