@@ -1,4 +1,4 @@
-# import sys
+import sys
 import subprocess
 
 class Table(object):
@@ -8,7 +8,13 @@ class Table(object):
     else:
       self.headings = args
 
-    self.p = subprocess.Popen(['column', '-t', '-s\t'], stdin=subprocess.PIPE, text=True)
+    try:
+      self.p = subprocess.Popen(['column', '-t', '-s\t'], stdin=subprocess.PIPE, text=True)
+    except Exception as e:
+      print(f'Error opening `column`: {e!s}', file=sys.stderr)
+      print('On Ubuntu, try installing the bsdmainutils package', file=sys.stderr)
+      exit(1)
+
     self.p.stdin.write('\t'.join([str(heading) for heading in self.headings]) + '\n')
 
   def add(self, *args):
