@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import pdb
+import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree
 
 def dive(node, stack=[]):
@@ -18,6 +19,8 @@ def dive(node, stack=[]):
 
 tree = ElementTree()
 root = tree.parse('sample.xhtml')
-dive(root)
+# dive(root)
+
+ET.dump(root)
 
 # pdb.set_trace()
