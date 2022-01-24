@@ -1,0 +1,23 @@
+#! /usr/bin/env python
+
+import pdb
+from xml.etree.ElementTree import ElementTree
+
+def dive(node, stack=[]):
+  text = node.text.strip()
+  if text:
+    text = ' text: ' + repr(text)
+  print(f'/{"/".join(stack)} {node.tag}{text}')
+  for child in node:
+    dive(child, stack + [node.tag])
+  tail = node.tail.strip() if node.tail else ''
+  if tail:
+    tail = ' tail: ' + repr(tail)
+  if tail:
+    print(f'/{"/".join(stack)} {node.tag}{tail}')
+
+tree = ElementTree()
+root = tree.parse('sample.xhtml')
+dive(root)
+
+# pdb.set_trace()
