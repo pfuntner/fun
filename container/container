@@ -21,7 +21,13 @@ class Node(object):
     return iter(self.data)
 
   def __getitem__(self, key):
-    return self.data[key]
+    if isinstance(key, int):
+      if 0 <= key < len(self.data):
+        return self.data[key]
+      else:
+        raise Exception(f'{key!r} is out of range')
+    else:
+      raise Exception(f'{key!r} is an invalid key')
 
 def dive(root, indent=0):
   print(f'{" "*(indent*2)}{root.num}')
@@ -37,3 +43,23 @@ dive(root)
 print('')
 
 print(f'root[0].num = {root[0].num}')
+
+try:
+  root[10]
+except Exception as e:
+  print(f'Caught: {e!s}')
+
+try:
+  root[-1]
+except Exception as e:
+  print(f'Caught: {e!s}')
+
+try:
+  root[1.0]
+except Exception as e:
+  print(f'Caught: {e!s}')
+
+try:
+  root['foo']
+except Exception as e:
+  print(f'Caught: {e!s}')
