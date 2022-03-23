@@ -1,0 +1,29 @@
+#! /usr/bin/env python
+
+class Node(object):
+  NUM = 0
+
+  def __init__(self):
+    Node.NUM += 1
+    self.num = Node.NUM
+    self.data = []
+
+  def add(self, datum):
+    self.data.append(datum)
+
+  def __len__(self):
+    return len(self.data)
+
+  def __iter__(self):
+    return iter(self.data)
+
+def dive(root, indent=0):
+  print(f'{" "*(indent*2)}{root.num}')
+  for node in root:
+    dive(node, indent+1)
+
+root = Node()
+root.add(Node())
+root.add(Node())
+
+dive(root)
