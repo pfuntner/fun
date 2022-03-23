@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+from lxml import html
+
+def dive(root, indent=0):
+  attribs = f' {" ".join(f"{key}={value!r}" for (key,value) in root.attrib.items())}' if root.attrib else ''
+    
+  print(f'{" "*(indent*2)}<{root.tag}{attribs}>{root.text.strip() if root.text else ""}')
+  for node in root:
+    dive(node, indent+1)
+  print(f'{" "*(indent*2)}</{root.tag}>{root.tail.strip() if root.tail else ""}')
+
+root = html.parse('test.html').getroot()
+dive(root)
