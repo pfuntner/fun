@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+
+"""
+  Trying an alternate way of writing out a list of lines into a file.
+
+  In the past, I've always done:
+
+     print('\n'.join(lines), file=stream)
+
+  By making use of the `sep` argument of print() (https://docs.python.org/3/library/functions.html#print) and
+  `argument unpacking` (https://docs.python.org/3/tutorial/controlflow.html#unpacking-argument-lists):
+
+    print(*lines, sep='\n', file=stream)
+
+  I'm not sure which is "better" but it might be good to be aware of both.  Frankly, I think using join() is
+  a little more universal - the technique could be used if you're not using print() and can't use the `sep`
+  argument.
+"""
+
+lines = ['line 1', 'line 2', 'line 3']
+with open('/tmp/foo', 'w') as stream:
+  print(*lines, sep='\n', file=stream)
