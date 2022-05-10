@@ -1,0 +1,10 @@
+#! /usr/bin/env python
+
+class Foo(object):
+  def __init__(self):
+    pass
+
+foo = Foo()
+foo.bar = 42
+print(getattr(foo, 'bar'))
+print(getattr(foo, 'BAR', None))
