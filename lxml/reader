@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+import sys
+
 from lxml import html
 
 def dive(root, indent=0):
@@ -10,5 +12,8 @@ def dive(root, indent=0):
     dive(node, indent+1)
   print(f'{" "*(indent*2)}</{root.tag}>{root.tail.strip() if root.tail else ""}')
 
-root = html.parse('test.html').getroot()
+if sys.stdin.isatty():
+  root = html.parse('test.html').getroot()
+else:
+  root = html.fromstring(sys.stdin.read())
 dive(root)
