@@ -1,0 +1,40 @@
+#! /usr/bin/env python
+
+import sys
+
+# https://stevenloria.com/lazy-properties/
+# We import this in our other *_info class to lazyload attributes
+def lazy_property(fn):
+    '''Decorator that makes a property lazy-evaluated.
+    '''
+    attr_name = '_lazy_' + fn.__name__
+
+    @property
+    def _lazy_property(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, fn(self))
+        return getattr(self, attr_name)
+    return _lazy_property
+
+class MyClass(object):
+  def __init__(self, *vars):
+    print(f'{self.__class__.__name__}.init() entered with {vars}')
+
+    self.vars = vars
+
+    print(f'{self.__class__.__name__}.init() exiting')
+
+  @lazy_property
+  def name(self):
+    if self.vars:
+      with open(self.vars[0]) as stream:
+        ret = stream.read()
+    else:
+      ret = None
+    print(f'{self.__class__.__name__}.init() returning {ret!r}')
+    return ret
+
+myobj = MyClass(*sys.argv[1:])
+print(f'name: {myobj.name!r}')
+cache_clear()
+print(f'name: {myobj.name!r}')
