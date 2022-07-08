@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import sys
+import shlex
 import signal
 import logging
 import argparse
@@ -13,7 +14,7 @@ import subprocess
 def run(cmd, stdin=None, capture=True, shell=False):
   if shell:
     if isinstance(cmd, list):
-      cmd = ' '.join(cmd)
+      cmd = shlex.join(cmd)
   elif isinstance(cmd, str):
     cmd = cmd.split()
 
@@ -28,6 +29,7 @@ def run(cmd, stdin=None, capture=True, shell=False):
   if p:
     if stdin:
       p.stdin.write(stdin.encode())
+      p.stdin.close()
     if capture:
       (stdout, stderr) = tuple([s.decode('utf-8') for s in p.communicate()])
     else:
