@@ -1,0 +1,5 @@
+#! /usr/bin/env python3
+
+names = ['katie', 'sofi', 'bruno']
+
+print([c for name in names for c in name])

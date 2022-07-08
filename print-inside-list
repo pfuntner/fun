@@ -1,0 +1,3 @@
+#! /usr/bin/env python
+
+[print(num) for num in range(10)]

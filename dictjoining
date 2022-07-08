@@ -1,0 +1,9 @@
+#! /usr/bin/env python3
+
+def test(x,y):
+  z = {**x, **y}
+  print(f'{x} + {y} = {z}')
+
+test({'a': 1, 'b': 2}, {'c': 3})
+test({'a': 1, 'b': 2}, {'a': 1, 'c': 3})
+test({'a': 1, 'b': 2}, {'a': 2, 'c': 3})

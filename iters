@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+import re
+
+data = """
+....abc....
+...abcd....
+...zabc...
+...abc....
+abc
+"""
+
+hits = list(re.finditer(r'\b(abc)\b', data))
+print(f'There are {len(hits)} hits')
+for (pos, hit) in enumerate(hits):
+  print(f'{pos}: {hit.group(0)}')
+  print(f'  start-end: {hit.start(1)}:{hit.end(1)} {data[hit.start(1):hit.end(1)]!r}')
