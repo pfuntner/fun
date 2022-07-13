@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import sys
-import shlex
 import signal
 import logging
 import argparse
@@ -9,6 +8,7 @@ import argparse
 """
 # expose this section for a nice way to run an external command
 
+import shlex
 import subprocess
 
 def run(cmd, stdin=None, capture=True, shell=False):
