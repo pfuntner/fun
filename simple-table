@@ -1,25 +1,43 @@
-import sys
-import subprocess
-
 class Table(object):
-  def __init__(self, *args):
-    if len(args) == 1 and type(args[0]) in (list, tuple):
-      self.headings = args[0]
-    else:
-      self.headings = args
+    """
+    A class the produces pretty tabular output - nicely alinged rows and columns
+    """
+    def __init__(self, *headings):
+        """
+        Constructor that initializes the Table class
 
-    try:
-      self.p = subprocess.Popen(['column', '-t', '-s\t'], stdin=subprocess.PIPE, text=True)
-    except Exception as e:
-      print(f'Error opening `column`: {e!s}', file=sys.stderr)
-      print('On Ubuntu, try installing the bsdmainutils package', file=sys.stderr)
-      exit(1)
+        Args:
+            headings: A list of objects for the headings of the columns.  The number
+            of headings must match the number of cells in each row.
+        """
+        # `self.data` is a list that contains all the cells in the table, including the headings
+        self.data = [ [str(heading) for heading in headings] ]
 
-    self.p.stdin.write('\t'.join([str(heading) for heading in self.headings]) + '\n')
+        # `self.widths` contains the widths of each column - the maximum width of each cell in a column
+        self.widths = [len(heading) for heading in self.data[0]]
 
-  def add(self, *args):
-    self.p.stdin.write('\t'.join([str(arg) for arg in args]) + '\n')
+    def add(self, *columns):
+        """
+        Adds a row to the table
 
-  def close(self):
-    self.p.stdin.close()
-    self.p.wait()
+        Args:
+            columns: A list of objects for the cells in the row.
+        """
+
+        # assure the number of cells matches the number of headings
+        assert len(columns) == len(self.data[0])
+
+        self.data.append(list(map(str, columns)))
+
+        # recalculate the maximum columns widths
+        for (column_number, column) in enumerate(columns):
+            self.widths[column_number] = max(self.widths[column_number], len(column))
+
+    def close(self):
+        """
+        Completes the table and prints out all the rows (including headings) and columns aligned according to
+        the maximum width of each column
+        """
+
+        for row_num in range(len(self.data)):
+            print('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
