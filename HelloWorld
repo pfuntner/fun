@@ -1,0 +1,6 @@
+#! /usr/bin/env python3
+
+import os
+
+uname = os.uname()
+print(f'Hello from {uname}')
