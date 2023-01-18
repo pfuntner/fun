@@ -1,0 +1,37 @@
+#! /usr/bin/env python3
+
+class Node(object):
+  def __init__(self, name):
+    self.name = name
+    self.next = 0
+    self.nodes = list()
+
+  def append(self, node):
+    self.nodes.append(node)
+
+  def __iter__(self):
+    self.next = 0
+    return self
+
+  def __next__(self):
+    if self.next >= len(self.nodes):
+      raise StopIteration()
+
+    node = self.nodes[self.next]
+    self.next += 1
+    return node
+
+def tour(node, depth=0):
+  if node is not None:
+    print(f'{" "*depth}{node.name}')
+    for child in node:
+      tour(child, depth+1)
+
+root = Node('root')
+root.append(Node('one'))
+root.append(Node('two'))
+three = Node('three')
+three.append(Node('thread-one'))
+root.append(three)
+
+tour(root)
