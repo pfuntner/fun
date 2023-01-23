@@ -1,10 +1,22 @@
 #! /usr/bin/env python3
 
+import threading
+
 class Node(object):
-  def __init__(self, name):
+  __num__ = 0
+  __lock__ = threading.Lock()
+
+  def __init__(self, name, *children):
     self.name = name
+    self.nodes = [child for child in children]
+
+    Node.__lock__.acquire()
+    self.num = Node.__num__
+    Node.__num__ += 1
+    Node.__lock__.release()
+
+    # the next attribute is used by the __next__() method
     self.next = 0
-    self.nodes = list()
 
   def append(self, node):
     self.nodes.append(node)
@@ -23,15 +35,16 @@ class Node(object):
 
 def tour(node, depth=0):
   if node is not None:
-    print(f'{" "*depth}{node.name}')
+    print(f'{" "*(2*depth)}{node.name} ({node.num})')
     for child in node:
       tour(child, depth+1)
 
 root = Node('root')
 root.append(Node('one'))
 root.append(Node('two'))
-three = Node('three')
-three.append(Node('thread-one'))
-root.append(three)
+root.append(Node('three', Node('three-one'), Node('three-three')))
+root.append(Node('four'))
+
+root = Node('grandroot', root)
 
 tour(root)
