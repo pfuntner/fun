@@ -4,7 +4,7 @@ class Table(object):
     """
     A class the produces pretty tabular output - nicely alinged rows and columns
     """
-    def __init__(self, *headings):
+    def __init__(self, *headings, banner=False):
         """
         Constructor that initializes the Table class
 
@@ -17,6 +17,12 @@ class Table(object):
 
         # `self.widths` contains the widths of each column - the maximum width of each cell in a column
         self.widths = [len(heading) for heading in self.data[0]]
+
+        if banner:
+          self.banner = '=' if banner == True else banner
+        else:
+          self.banner = False
+
 
     def add(self, *columns):
         """
@@ -42,6 +48,10 @@ class Table(object):
         """
         ret = list()
 
+        if self.banner:
+          self.data.insert(1, [self.banner * self.widths[col_num] for col_num in range(len(self.data[0]))])
+          self.banner = False
+
         for row_num in range(len(self.data)):
             ret.append('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
 
@@ -55,7 +65,8 @@ class Table(object):
 
         print(str(self))
 
-table = Table('One', 'Two', 'Three')
+table = Table('One', 'Two', 'Three', banner=True)
+
 for row in range(5):
   cols = list()
   for col in range(3):

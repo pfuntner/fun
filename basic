@@ -45,7 +45,7 @@ class Table(object):
     """
     A class the produces pretty tabular output - nicely alinged rows and columns
     """
-    def __init__(self, *headings):
+    def __init__(self, *headings, banner=False):
         """
         Constructor that initializes the Table class
 
@@ -58,6 +58,12 @@ class Table(object):
 
         # `self.widths` contains the widths of each column - the maximum width of each cell in a column
         self.widths = [len(heading) for heading in self.data[0]]
+
+        if banner:
+          self.banner = '=' if banner == True else banner
+        else:
+          self.banner = False
+
 
     def add(self, *columns):
         """
@@ -73,7 +79,7 @@ class Table(object):
         self.data.append(list(map(str, columns)))
 
         # recalculate the maximum columns widths
-        for (column_number, column) in enumerate(self.data[-1]):
+        for (column_number, column) in enumerate(columns):
             self.widths[column_number] = max(self.widths[column_number], len(column))
 
     def __str__(self):
@@ -82,6 +88,10 @@ class Table(object):
         the maximum width of each column
         """
         ret = list()
+
+        if self.banner:
+          self.data.insert(1, [self.banner * self.widths[col_num] for col_num in range(len(self.data[0]))])
+          self.banner = False
 
         for row_num in range(len(self.data)):
             ret.append('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
