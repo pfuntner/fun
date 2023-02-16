@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 class Table(object):
     """
     A class the produces pretty tabular output - nicely alinged rows and columns
@@ -33,11 +35,36 @@ class Table(object):
         for (column_number, column) in enumerate(columns):
             self.widths[column_number] = max(self.widths[column_number], len(column))
 
+    def __str__(self):
+        """
+        Formats the rows (including headings) and columns aligned according to
+        the maximum width of each column
+        """
+        ret = list()
+
+        for row_num in range(len(self.data)):
+            ret.append('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
+
+        return '\n'.join(ret)
+
     def close(self):
         """
         Completes the table and prints out all the rows (including headings) and columns aligned according to
         the maximum width of each column
         """
 
-        for row_num in range(len(self.data)):
-            print('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
+        print(str(self))
+
+table = Table('One', 'Two', 'Three')
+for row in range(5):
+  cols = list()
+  for col in range(3):
+    cols.append(', '.join([f'{row}-{col}']*(row+1)))
+  table.add(*cols)
+
+print('===== Big String =====')
+print(repr(str(table)))
+
+print()
+print('===== Pretty Table =====')
+table.close()

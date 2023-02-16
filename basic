@@ -76,14 +76,25 @@ class Table(object):
         for (column_number, column) in enumerate(self.data[-1]):
             self.widths[column_number] = max(self.widths[column_number], len(column))
 
+    def __str__(self):
+        """
+        Formats the rows (including headings) and columns aligned according to
+        the maximum width of each column
+        """
+        ret = list()
+
+        for row_num in range(len(self.data)):
+            ret.append('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
+
+        return '\n'.join(ret)
+
     def close(self):
         """
         Completes the table and prints out all the rows (including headings) and columns aligned according to
         the maximum width of each column
         """
 
-        for row_num in range(len(self.data)):
-            print('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
+        print(str(self))
 """
 
 parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY) # sys.argv[0])
