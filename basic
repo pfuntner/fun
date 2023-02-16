@@ -94,7 +94,7 @@ class Table(object):
           self.banner = False
 
         for row_num in range(len(self.data)):
-            ret.append('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))]))
+            ret.append(('  '.join([self.data[row_num][col_num].ljust(self.widths[col_num]) for col_num in range(len(self.data[0]))])).rstrip())
 
         return '\n'.join(ret)
 
