@@ -40,7 +40,7 @@ def run(cmd, stdin=None, capture=True, shell=False):
   return (rc, stdout, stderr)
 """
 
-"""
+'''
 class Table(object):
     """
     A class the produces pretty tabular output - nicely alinged rows and columns
@@ -105,7 +105,7 @@ class Table(object):
         """
 
         print(str(self))
-"""
+'''
 
 parser = argparse.ArgumentParser(description=DESCRIPTION_GOES_HERE_DUMMY) # sys.argv[0])
 parser.add_argument('-v', '--verbose', action='count', help='Enable debugging')
