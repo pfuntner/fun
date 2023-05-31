@@ -79,7 +79,7 @@ class Table(object):
         self.data.append(list(map(str, columns)))
 
         # recalculate the maximum columns widths
-        for (column_number, column) in enumerate(columns):
+        for (column_number, column) in enumerate(self.data[-1]):
             self.widths[column_number] = max(self.widths[column_number], len(column))
 
     def __str__(self):
