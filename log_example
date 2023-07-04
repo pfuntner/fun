@@ -1,5 +1,6 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 
+import pdb
 import logging
 import argparse
 
@@ -22,3 +23,5 @@ log.error('This is an error message')
 log.fatal('This is a fatal/critical message')
 
 print('That will do, pig.  That will do.') # prove that we none of the logging methods terminate the process
+
+pdb.set_trace()
