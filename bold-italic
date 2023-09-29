@@ -1,0 +1,42 @@
+#! /usr/bin/env python
+
+"""
+I used this as a vi macro to help me change github-style markdown for italic and bold into HTML markdown.
+
+Example:
+
+  $ echo -e 'This is _italic_ and **bold**\n_**italic and bold**_'
+  This is _italic_ and **bold**
+  _**italic and bold**_
+  $ echo -e 'This is _italic_ and **bold**\n_**italic and bold**_' | ./bold-italic
+  This is <i>italic</i> and <b>bold</b>
+  <i><b>italic and bold</b></i>
+  $
+"""
+
+import re
+import sys
+
+italic_regexp = re.compile(r'_([^_]+)_')
+asterisk_regexp = re.compile(r'\*\*([^_]+)\*\*')
+
+if not sys.stdin.isatty():
+  for line in sys.stdin.read().splitlines():
+    while True:
+      match = italic_regexp.search(line)
+      if match:
+        line = f'{line[:match.start(1)-1]}<i>{line[match.start(1):match.end(1)]}</i>{line[match.end(1)+1:]}'
+      else:
+        break
+
+    while True:
+      match = asterisk_regexp.search(line)
+      if match:
+        line = f'{line[:match.start(1)-2]}<b>{line[match.start(1):match.end(1)]}</b>{line[match.end(1)+2:]}'
+      else:
+        break
+
+    print(line)
+else:
+  print('stdin must be redirected', file=sys.stderr)
+  exit(1)
