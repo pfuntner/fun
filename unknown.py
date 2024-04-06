@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 
 import argparse
 
@@ -6,10 +6,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable debugging')
 (known, unknown) = parser.parse_known_args()
 
-print 'known: {}'.format(known)
-print 'unknown: {}'.format(unknown)
+print(f'{known=}')
+print(f'{unknown=}')
 
-print 'dir: {}'.format(dir(known))
+# print 'dir: {}'.format(dir(known))
 
 # args = parser.parse_args()
 # 
