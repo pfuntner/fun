@@ -1,0 +1,12 @@
+
+   Speedtest by Ookla
+
+      Server: NeoNova (Randolph Telephone) - Asheboro, NC (id: 11814)
+         ISP: Ting Fiber
+Idle Latency:     8.99 ms   (jitter: 0.07ms, low: 8.96ms, high: 9.08ms)
+    Download:   573.93 Mbps (data used: 675.1 MB)                                                   
+                 47.92 ms   (jitter: 7.33ms, low: 8.02ms, high: 401.52ms)
+      Upload:   500.64 Mbps (data used: 367.8 MB)                                                   
+                 23.78 ms   (jitter: 3.14ms, low: 8.73ms, high: 60.89ms)
+ Packet Loss:     0.0%
+  Result URL: https://www.speedtest.net/result/c/ad6b00c5-3a74-4423-b8db-0a772647a5a0
