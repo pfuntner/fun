@@ -53,6 +53,7 @@ for line in binary_stdout.decode().splitlines():
     if len(headings) == 0:
       headings = tokens[1:-1]
     else:
+      assert len(tokens) == len(headings), f'Token count mismatch: expected {len(headings)} but got {len(tokens)}'
       processes.append({key: try_numeric(tokens[pos+1]) for (pos, key) in enumerate(headings)})
 
 json.dump(processes, sys.stdout)
